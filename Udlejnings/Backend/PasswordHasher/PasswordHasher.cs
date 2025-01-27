@@ -7,7 +7,7 @@ using System.Text;
 
 namespace Udlejnings.Backend.PasswordHasher;
 
-public class PasswordHasher
+public static class PasswordHasher
 {
     public static (string hashedPassword, string salt) HashPassword(string password)
     {
