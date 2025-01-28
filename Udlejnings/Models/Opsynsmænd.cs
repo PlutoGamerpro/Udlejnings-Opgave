@@ -9,12 +9,12 @@ public class Opsynsmænd
 {
     public int Id { get; set; }
     public static int NextId = 1;
-    public string FirstName { get; set; }   
-    public string LastName { get; set; }   
+    public string Fornavn { get; set; }   
+    public string Efternavn { get; set; }   
 
-    public Opsynsmænd(string Firstname, string Lastname){
+    public Opsynsmænd(string fornavn, string efternavn){
         Id = NextId++;
-        FirstName = Firstname;
-        LastName = Lastname;
+        Fornavn = fornavn;
+        Efternavn = efternavn;
     }
 }

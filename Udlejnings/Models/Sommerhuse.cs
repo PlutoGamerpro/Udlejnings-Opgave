@@ -9,17 +9,20 @@ public class Sommerhuse
 {
     public int Id { get; set; }
     public static int NextId = 1;
-    public int Senge { get; set; }
-    public double Kvalitet { get; set; }
+    public float Senge { get; set; }
+    public float Kvalitet { get; set; }
 
+    float Price { get; set; }
+
+   
     // pris skal nok have sin egen klasse fordi den kan være 3 forskellige .... 
 
-    public Sommerhuse(int id, int senge, double kvalitet)
+    public Sommerhuse(float senge, float kvalitet, float price)
     {
         Id = NextId++;
-        Id = id;
         Senge = senge;
         Kvalitet = kvalitet;
+        Price = price;
 
     }
 }
