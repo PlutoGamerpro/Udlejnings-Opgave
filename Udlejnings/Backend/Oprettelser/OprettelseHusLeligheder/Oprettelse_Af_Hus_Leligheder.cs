@@ -8,21 +8,25 @@ namespace Udlejnings.Backend.Oprettelser.OprettelseHusLeligheder;
 
 public class Oprettelse_Af_Hus_Leligheder
 {
-    
+    bool KeepRuning = true;
+    float OkInputKvalitet = 0;
+    float OKInputSengeAntal = 0;
+    bool PrisKlasseInputValid = false;
+    float price = 0;
+    string VælgPrisKlasse = "";
+
+
     public void Oprettelse_Af_Sommerhus()
     {
-        
+        Prisseasoner prisseasoner = new Prisseasoner();
+        // if error set start value on values again 
+
         Console.WriteLine("Senge Antal: ");
         string InputSengeAntal = Console.ReadLine();
 
         Console.WriteLine("Kvalitet: ");
         string InputKvalitet = Console.ReadLine();
 
-        bool KeepRuning = true;
-        float OkInputKvalitet = 0;
-        float OKInputSengeAntal = 0;
-        double price = 0;
-        bool PrisKlasseInputValid = false;
 
         while (KeepRuning)
         {
@@ -41,24 +45,26 @@ public class Oprettelse_Af_Hus_Leligheder
         while (!PrisKlasseInputValid)
         {
             Console.WriteLine("Vælg pris klassen : Super, Høj, Mellem, Lav");
-            string VælgPrisKlasse = Console.ReadLine();
-            switch (VælgPrisKlasse)
+            VælgPrisKlasse = Console.ReadLine();
+
+            if (prisseasoner.PriceMapping.ContainsKey(VælgPrisKlasse))
             {
-                case "Super": PrisKlasseInputValid = true; break;
-                case "Høj": PrisKlasseInputValid = true; break;
-                case "Mellem": PrisKlasseInputValid = true; break;
-                case "Lav": PrisKlasseInputValid = true; break;
-                default: Console.WriteLine("Inputet er invalid"); break;
+                price = prisseasoner.PriceMapping[VælgPrisKlasse];
+                PrisKlasseInputValid = true;
             }
+            else { Console.WriteLine("Invalid input"); }
         }
-    
-    Sommerhuse sommerhuse = new Sommerhuse(OKInputSengeAntal, OkInputKvalitet);
+        Console.WriteLine($"Du har valgt pris klasse: {VælgPrisKlasse}, og prisen er: {price} kr.");
+
+        Sommerhuse sommerhuse = new Sommerhuse(OKInputSengeAntal, OkInputKvalitet, price);
     // penge season skal komme ind her og blive support om instance klassen
     // mangler at tilføje så penge option er en mulighed.....
      
     }
     public void Oprettelse_Af_Lelighed()
     {
+        // if error set start value on values again 
+
         Prisseasoner prisseasoner = new Prisseasoner();
 
         Console.WriteLine("Senge Antal: ");
@@ -67,12 +73,7 @@ public class Oprettelse_Af_Hus_Leligheder
         Console.WriteLine("Kvalitet: ");
         string InputKvalitet = Console.ReadLine();
 
-        bool KeepRuning = true;
-        float OkInputKvalitet = 0;
-        float OKInputSengeAntal = 0;
-        bool PrisKlasseInputValid = false;
-        float price = 0;
-        string VælgPrisKlasse ="";
+         
 
         while (KeepRuning)
         {
@@ -94,7 +95,7 @@ public class Oprettelse_Af_Hus_Leligheder
             Console.WriteLine("Vælg pris klassen : Super, Høj, Mellem, Lav");
            VælgPrisKlasse = Console.ReadLine();
 
-            if (prisseasoner.PriceMapping.ContainsKey(())){
+            if (prisseasoner.PriceMapping.ContainsKey(VælgPrisKlasse)){
                 price = prisseasoner.PriceMapping[VælgPrisKlasse];
                 PrisKlasseInputValid = true;
            } else { Console.WriteLine("Invalid input"); }

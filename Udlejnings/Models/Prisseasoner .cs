@@ -7,7 +7,7 @@ namespace Udlejnings.Models;
 
 public class Prisseasoner 
 {
-    public Dictionary <string, double> PriceMapping = new Dictionary<string, double>
+    public Dictionary <string, float> PriceMapping = new Dictionary<string, float>
     {
         {"Super",6000},
         {"Høj", 5000},
