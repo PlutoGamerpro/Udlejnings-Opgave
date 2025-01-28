@@ -7,5 +7,9 @@ namespace Udlejnings.Backend.Bookings;
 
 public class BookingLejlheder
 {
-    
+    public void BookingLejlhederF(){
+        Console.WriteLine("Booking Lejlheder");
+
+        
+    }
 }

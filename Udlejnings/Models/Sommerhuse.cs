@@ -14,9 +14,11 @@ public class Sommerhuse
 
     public float Price { get; set; }
 
-   
+
     // pris skal nok have sin egen klasse fordi den kan være 3 forskellige .... 
 
+
+    public Sommerhuse() { }
     public Sommerhuse(float senge, float kvalitet, float price)
     {
         Id = NextId++;

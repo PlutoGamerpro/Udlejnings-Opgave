@@ -16,6 +16,7 @@ public class Lejlheder
 
     // pris skal nok have sin egen klasse fordi den kan være 3 forskellige .... 
 
+    public Lejlheder(){}
     public Lejlheder(float senge, float kvalitet, float price)
     {
         Id = NextId++;

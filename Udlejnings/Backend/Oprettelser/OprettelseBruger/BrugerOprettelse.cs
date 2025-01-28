@@ -15,6 +15,7 @@ public class BrugerOprettelse
 
         Console.WriteLine("");
 
+
         Console.Write("Input Efternavn: ");
         string Efternavn = Console.ReadLine();
 
