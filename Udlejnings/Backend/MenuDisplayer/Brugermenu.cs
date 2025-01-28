@@ -44,11 +44,11 @@ public class Brugermenu
 
     public void DisplayPokémonMuligheder()
     {
-        Console.WriteLine("1: Oprettelse af Pokémon");
-        Console.WriteLine("2: Redigering af Pokémon");
-        Console.WriteLine("3: Sletting af Pokémon");
-        Console.WriteLine("4: VisingAfPokémon");
-        Console.WriteLine("5: SøgningAfPokémon");
+        Console.WriteLine("1: Oprettelse af ");
+        Console.WriteLine("2: Redigering af ");
+        Console.WriteLine("3:  ");
+        Console.WriteLine("4: ");
+        Console.WriteLine("5: ");
         Console.WriteLine("6: Tilbage til Startmenu");
         Console.WriteLine("7: Afslut programmet");
 

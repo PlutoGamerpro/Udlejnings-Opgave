@@ -7,6 +7,13 @@ namespace Udlejnings.Models;
 
 public class Prisseasoner 
 {
-    public string[] _Prisseasoner = {"Super","Høj","Mellem","Lav"};
+    public Dictionary <string, double> PriceMapping = new Dictionary<string, double>
+    {
+        {"Super",6000},
+        {"Høj", 5000},
+        {"Mellem", 4000},
+        {"Lav", 3000},
+
+    };
 
 }
