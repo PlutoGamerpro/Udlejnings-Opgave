@@ -6,7 +6,8 @@ ID INT IDENTITY(1,1),
 Fornavn VARCHAR(20),
 Efternavn VARCHAR(20),
 Adgangskode VARCHAR(20),
-
+Salt NVARCHAR(255),
+Role NVARCHAR(50),
 CONSTRAINT BrugerLejer_PK_KEY PRIMARY KEY (ID),
 );
 
@@ -66,25 +67,24 @@ CONSTRAINT Områder_PK_KEY PRIMARY KEY (ID),
 );
 
 CREATE TABLE CombineTable(
-INT LejlhederID,
-INT SommehuseID,
-INT OmrådeID,
-INT BrugerLejerID,
-INT OpsynsmændID,
-INT UdlejerID,
-INT UdlejningskonsulentID,
-INT PrisseasonerID,
+    LejlhederID INT,
+    SommerhuseID INT,
+    OmrådeID INT,
+    BrugerLejerID INT,
+    OpsynsmændID INT,
+    UdlejerID INT,
+    UdlejningskonsulentID INT,
+    PrisseasonerID INT,
 
-CONSTRAINT PrisseasonerID_FK_KEY FOREIGN KEY(PrisseasonerID) REFERENCES Prisseasoner(Prisseasoner_PK_KEY),
-CONSTRAINT Udlejningskonsulent_FK_KEY FOREIGN KEY(UdlejningskonsulentID) REFERENCES Udlejningskonsulent(Udlejningskonsulent_PK_KEY), 
-CONSTRAINT UdLejer_FK_KEY FOREIGN KEY(UdlejerID) REFERENCES Udlejer(Udlejer_PK_KEY),
-CONSTRAINT OpsynsmændID_FK_KEY FOREIGN KEY(OpsynsmændID) REFERENCES Opsynsmænd(Opsynsmænd_PK_KEY),
-CONSTRAINT BrugerLejer_FK_KEY FOREIGN KEY(BrugerLejerID) REFERENCES BrugerLejer(BrugerLejer_PK_KEY),
-CONSTRAINT Område_FK_KEY FOREIGN KEY(OmrådeID) REFERENCES Områder(Områder_PK_KEY),
-CONSTRAINT Lejlhed_FK_KEY FOREIGN KEY (LejlhederID) REFERENCES Lejlheder(Lejlheder_PK_KEY),
-CONSTRAINT Sommehuse_FK_KEY FOREIGN KEY (SommehuseID) REFERENCES Sommerhuse(Sommerhuse_PK_KEY)
+    CONSTRAINT PrisseasonerID_FK_KEY FOREIGN KEY(PrisseasonerID) REFERENCES Prisseasoner(ID),
+    CONSTRAINT Udlejningskonsulent_FK_KEY FOREIGN KEY(UdlejningskonsulentID) REFERENCES Udlejningskonsulent(ID), 
+    CONSTRAINT UdLejer_FK_KEY FOREIGN KEY(UdlejerID) REFERENCES Udlejer(ID),
+    CONSTRAINT OpsynsmændID_FK_KEY FOREIGN KEY(OpsynsmændID) REFERENCES Opsynsmænd(ID),
+    CONSTRAINT BrugerLejer_FK_KEY FOREIGN KEY(BrugerLejerID) REFERENCES BrugerLejer(ID),
+    CONSTRAINT Område_FK_KEY FOREIGN KEY(OmrådeID) REFERENCES Områder(ID),
+    CONSTRAINT Lejlhed_FK_KEY FOREIGN KEY (LejlhederID) REFERENCES Lejlheder(ID),
+    CONSTRAINT Sommerhuse_FK_KEY FOREIGN KEY (SommerhuseID) REFERENCES Sommerhuse(ID)
 );
-
 
 INSERT INTO Prisseasoner (Prisseasoner)
 VALUES

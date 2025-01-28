@@ -111,4 +111,36 @@ public class GetFromDatabase
             Console.WriteLine($"Id: {område.Id}, OmrådeNavn: {område.OmrådeNavn}");
         }
     }
+
+    public BrugerLejer FetchUserFromDatabase(string Fornavn)
+    {
+        string connectionString = "Data Source=GH\\MSSQLSERVER01;Initial Catalog=UdlejningsDatabase;Integrated Security=True;Trust Server Certificate=True";
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            connection.Open();
+
+            string query = "SELECT * FROM BrugerLejer WHERE Fornavn = @Fornavn";
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@Fornavn", Fornavn);
+
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new BrugerLejer
+                        {
+                            Fornavn = reader["Fornavn"].ToString(),
+                            Adgangskode = reader["Adgangskode"].ToString(),
+                            Salt = reader["Salt"].ToString(),
+                            Role = reader["Role"].ToString()
+                        };
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
 }

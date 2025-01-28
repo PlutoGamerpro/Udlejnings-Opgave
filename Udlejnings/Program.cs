@@ -10,7 +10,7 @@ namespace Udlejnings.Models
         static void Main(string[] args)
         {
             Brugermenu brugermenu = new Brugermenu();
-            brugermenu.DisplayUserMenu();
+            brugermenu.OperationManager();
         }
     }
 }
