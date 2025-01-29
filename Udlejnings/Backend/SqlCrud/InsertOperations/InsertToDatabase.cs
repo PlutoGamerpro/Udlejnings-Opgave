@@ -127,7 +127,7 @@ public class InsertToDatabase
                 // Add parameters to the query
                 command.Parameters.AddWithValue("@Fornavn", opsynsmænd.Fornavn);
                 command.Parameters.AddWithValue("@Efternavn ", opsynsmænd.Efternavn);
-               // Execute the query
+                // Execute the query
                 command.ExecuteNonQuery();
             }
         }
@@ -158,6 +158,82 @@ public class InsertToDatabase
 
         Console.WriteLine("Opsynsmænd blev oprettet i databasen.");
     }
+    public void CreateBooking(int userId, int? sommerhusId, int? lejlighedId, DateTime startDate, DateTime endDate, decimal price)
+    {
+        string connectionString = "Data Source=GH\\MSSQLSERVER01;Initial Catalog=UdlejningsDatabase;Integrated Security=True;Trust Server Certificate=True";
 
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            connection.Open();
 
+            // Construct SQL query based on whether the user is booking a Sommerhus or a Lejlighed
+            string query = string.Empty;
+
+            if (sommerhusId.HasValue)
+            {
+                query = "INSERT INTO Bookings (UserId, SommerhusId, StartDate, EndDate, Price) VALUES (@UserId, @SommerhusId, @StartDate, @EndDate, @Price)";
+            }
+            else if (lejlighedId.HasValue)
+            {
+                query = "INSERT INTO Bookings (UserId, LejlighedId, StartDate, EndDate, Price) VALUES (@UserId, @LejlighedId, @StartDate, @EndDate, @Price)";
+            }
+
+            // Check if a valid query was built
+            if (string.IsNullOrEmpty(query))
+            {
+                Console.WriteLine("Invalid booking data.");
+                return;
+            }
+
+            // Execute the query to insert the booking
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@UserId", userId);
+                command.Parameters.AddWithValue("@StartDate", startDate);
+                command.Parameters.AddWithValue("@EndDate", endDate);
+                command.Parameters.AddWithValue("@Price", price);
+
+                // Add parameters for Sommerhus or Lejlighed depending on what was chosen
+                if (sommerhusId.HasValue)
+                {
+                    command.Parameters.AddWithValue("@SommerhusId", sommerhusId.Value);
+                }
+                else if (lejlighedId.HasValue)
+                {
+                    command.Parameters.AddWithValue("@LejlighedId", lejlighedId.Value);
+                }
+
+                // Execute the command
+                command.ExecuteNonQuery();
+                Console.WriteLine("Booking successfully created.");
+            }
+        }
+
+    }
+    public void ConfirmBooking(int bookingId)
+    {
+        string connectionString = "Data Source=GH\\MSSQLSERVER01;Initial Catalog=UdlejningsDatabase;Integrated Security=True;Trust Server Certificate=True";
+
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            connection.Open();
+            string query = "UPDATE Bookings SET Status = 'Confirmed' WHERE Id = @BookingId AND Status = 'Pending'";
+
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@BookingId", bookingId);
+                int rowsAffected = command.ExecuteNonQuery();
+
+                if (rowsAffected > 0)
+                {
+                    Console.WriteLine("Booking confirmed successfully.");
+                }
+                else
+                {
+                    Console.WriteLine("Booking could not be confirmed (it may have already been confirmed or not exist).");
+                }
+            }
+        }
+    }
+    
 }

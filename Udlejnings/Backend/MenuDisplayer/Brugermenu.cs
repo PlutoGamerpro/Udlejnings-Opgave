@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Udlejnings.Backend.Bookings;
 using Udlejnings.Backend.EditingLH;
 using Udlejnings.Backend.Oprettelser.OprettelseHusLeligheder;
 using Udlejnings.Backend.SqlCrud.GetOperation;
+using Udlejnings.Backend.SqlCrud.InsertOperations;
 
 namespace Udlejnings.Backend.MenuDisplayer
 {
@@ -13,8 +15,6 @@ namespace Udlejnings.Backend.MenuDisplayer
 
     public class Brugermenu
     {
-
-
 
         // Class content goes here if needed.
         public void DisplayUserMenu()
@@ -67,11 +67,14 @@ namespace Udlejnings.Backend.MenuDisplayer
             Console.WriteLine("4. Rediger Lejlhed");
 
             Console.WriteLine("5. Se Ledlige lejlheder / sommerhuse ");
-            Console.WriteLine("6. Tilbage til hovedmenu");
-            Console.WriteLine("7. Afslut program");
+
+            Console.WriteLine("6. Comfirm lån af Sommerhus / Lejlhed");
+
+            Console.WriteLine("7. Tilbage til hovedmenu");
+            Console.WriteLine("8. Afslut program");
         }
 
-        public void AdminOperationManager()
+        public void AdminOperationManager(GetFromDatabase bookingSystem)
         {
 
 
@@ -81,11 +84,15 @@ namespace Udlejnings.Backend.MenuDisplayer
 
             Oprettelse_Af_Hus_Leligheder oprettelse_Af_Hus_Leligheder = new Oprettelse_Af_Hus_Leligheder();
 
+            InsertToDatabase BookingSystem = new InsertToDatabase();
+            GetFromDatabase getFromDatabase1 = new GetFromDatabase();
+            Brugermenu brugermenu = new Brugermenu();
+
             while (true)
             { // program on loop-- never need to be false...
                 
                 AdminLoggedIn();
-                Console.Write("Vælg Mulighed 1,2,3,4,5,6 : ");
+                Console.Write("Vælg Mulighed 1,2,3,4,5,6,7,8 : ");
                 // if userenter one of the options below then exits the loop 
 
                 string BrugerInput = Console.ReadLine();
@@ -95,9 +102,11 @@ namespace Udlejnings.Backend.MenuDisplayer
                     case "2": edit_Sommerhus_Lejlhed.EditSommerhus(); Console.WriteLine("Rediger Sommerhus"); break;
                     case "3": oprettelse_Af_Hus_Leligheder.Oprettelse_Af_Lelighed(); Console.WriteLine("Opret Lejlhed"); break;
                     case "4": edit_Sommerhus_Lejlhed.EditLejlighed(); Console.WriteLine("Rediger Lejlhed"); break;
-                    case "5": getFromDatabase.FetchLejlhederFromDatabase(); getFromDatabase.FetchSommerhuseFromDatabase(); Console.WriteLine("Se Ledige lejlheder / sommerhuse"); break;
-                    case "6": Console.WriteLine("Tilbage til hovedmenu"); break;
-                    case "7": Console.WriteLine("Afslutet Program "); Environment.Exit(0); break;
+                   // case "5": getFromDatabase.FetchLejlhederFromDatabase(); getFromDatabase.FetchSommerhuseFromDatabase(); Console.WriteLine("Se Ledige lejlheder / sommerhuse"); break;
+                    case "5": getFromDatabase.ShowPendingBookings(bookingSystem); Console.WriteLine("Se Ledige lejlheder / sommerhuse"); break;
+                    case "6": getFromDatabase.ConfirmBooking(BookingSystem); Console.WriteLine("Comfirm lejlhed / sommerhus"); break;
+                    case "7": brugermenu.OperationManager(); Console.WriteLine("Tilbage til hovedmenu"); break;
+                    case "8": Console.WriteLine("Afslutet Program "); Environment.Exit(0); break;
 
                     default: Console.WriteLine("Vælg en af overstående muligheder"); break;
 
@@ -118,20 +127,21 @@ namespace Udlejnings.Backend.MenuDisplayer
 
         public void BrugerOperationManager()
         {
-
+            Booking_Sommerhus_Lejlhed booking_Sommerhus_Lejlhed = new Booking_Sommerhus_Lejlhed();
+            Brugermenu brugermenu = new Brugermenu();
             while (true)
             { // program on loop-- never need to be false...
-                Console.Write("Vælg Mulighed 1,2,3 : ");
+                Console.Write("Vælg Mulighed 1,2,3,4 : ");
                 BrugerLoggedIn();
                 // if userenter one of the options below then exits the loop 
 
                 string BrugerInput = Console.ReadLine();
                 switch (BrugerInput)
                 {
-                    case "1": Console.WriteLine("Lån Sommerhus"); break;
+                    case "1": booking_Sommerhus_Lejlhed.CreateBookingMenu(); Console.WriteLine("Lån Sommerhus"); break;
                     case "2": Console.WriteLine("Lån Lejlhed"); break;
                     case "3": Console.WriteLine("Gå tilbage til hovedmenu"); break;
-                    case "4": Console.WriteLine("Afslut program"); break;
+                    case "4": brugermenu.OperationManager(); Console.WriteLine("Afslut program"); break;
                     default: Console.WriteLine("Vælg en af overstående muligheder"); break;
 
                 }

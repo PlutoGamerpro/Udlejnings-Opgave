@@ -37,16 +37,24 @@ public class BrugerLogin
             // Check the role and perform actions accordingly
             if (user != null)
             {
-                if (user.Role == "admin")
+                if (user.Role == "admin" || user.Role == "Konsulent" )
                 {
+                    
                     Console.WriteLine("Admin login successful. Admin methods are now available.");
-                   brugermenu1.AdminOperationManager(); // Admin-specific methods
+                    Console.WriteLine($"User Found: {user.Fornavn} {user.Efternavn}, Role: {user.Role}");
+                    brugermenu1.AdminOperationManager(); // Admin-specific methods
+
+                    
                 }
                 else
                 {
                     Console.WriteLine("User login successful. Regular user methods are now available.");
+                    Console.WriteLine($"User Found: {user.Fornavn} {user.Efternavn}, Role: {user.Role}");
                     brugermenu1.BrugerOperationManager(); // Regular user-specific methods
                 }
+              
+                // Bekræft booking
+              
             }
         }
         else

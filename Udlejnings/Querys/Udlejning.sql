@@ -26,6 +26,23 @@ Pris FLOAT,
 CONSTRAINT Sommerhuse_PK_KEY PRIMARY KEY(ID),
  --- add price here 
 );
+
+
+CREATE TABLE Bookings (
+    Id INT PRIMARY KEY IDENTITY,
+    BrugerId INT,
+    SommerhusId INT,
+    LejlighedId INT,
+    StartDate DATE,
+    EndDate DATE,
+    Price DECIMAL(18, 2),
+    Status VARCHAR(50), -- Kan være "Pending", "Confirmed", "Rejected"
+    FOREIGN KEY (BrugerId) REFERENCES BrugerLejer(Id),
+    FOREIGN KEY (SommerhusId) REFERENCES Sommerhuse(Id),
+    FOREIGN KEY (LejlighedId) REFERENCES Lejlheder(Id)
+);
+
+
 CREATE TABLE Lejlheder(
 ID INT IDENTITY(1,1),
 SengeAntal FLOAT,

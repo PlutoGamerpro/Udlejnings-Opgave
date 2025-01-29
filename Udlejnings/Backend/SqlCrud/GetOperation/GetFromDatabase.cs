@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Udlejnings.Models;
-using Microsoft.Data.SqlClient;  // Use this namespace instead
+using Microsoft.Data.SqlClient;
+using Udlejnings.Backend.SqlCrud.InsertOperations;  // Use this namespace instead
 
 namespace Udlejnings.Backend.SqlCrud.GetOperation;
 
@@ -17,7 +18,7 @@ public class GetFromDatabase
     // Method to retrieve all Lejlheder from the database and display them
     public void FetchLejlhederFromDatabase()
     {
-        
+
 
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
@@ -115,10 +116,12 @@ public class GetFromDatabase
     public BrugerLejer FetchUserFromDatabase(string Fornavn)
     {
         string connectionString = "Data Source=GH\\MSSQLSERVER01;Initial Catalog=UdlejningsDatabase;Integrated Security=True;Trust Server Certificate=True";
+
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
             connection.Open();
 
+            // Query to fetch the user based on 'Fornavn'
             string query = "SELECT * FROM BrugerLejer WHERE Fornavn = @Fornavn";
             using (SqlCommand command = new SqlCommand(query, connection))
             {
@@ -126,11 +129,14 @@ public class GetFromDatabase
 
                 using (SqlDataReader reader = command.ExecuteReader())
                 {
-                    if (reader.Read())
+                    if (reader.Read())  // If the user is found with the matching 'Fornavn'
                     {
+                        // Return a full BrugerLejer object with additional details
                         return new BrugerLejer
                         {
+                            Id = Convert.ToInt32(reader["Id"]),
                             Fornavn = reader["Fornavn"].ToString(),
+                            Efternavn = reader["Efternavn"].ToString(),
                             Adgangskode = reader["Adgangskode"].ToString(),
                             Salt = reader["Salt"].ToString(),
                             Role = reader["Role"].ToString()
@@ -139,8 +145,72 @@ public class GetFromDatabase
                 }
             }
         }
-        return null;
+        return null;  // If no user with the given 'Fornavn' is found
+
+
+    }
+    public List<Booking> GetPendingBookings()
+    {
+        List<Booking> pendingBookings = new List<Booking>();
+
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            connection.Open();
+            string query = "SELECT * FROM Bookings WHERE Status = 'Pending'";
+
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var booking = new Booking
+                        {
+                            Id = Convert.ToInt32(reader["Id"]),
+                            UserId = Convert.ToInt32(reader["UserId"]),
+                            SommerhusId = reader["SommerhusId"] as int?,
+                            LejlighedId = reader["LejlighedId"] as int?,
+                            StartDate = Convert.ToDateTime(reader["StartDate"]),
+                            EndDate = Convert.ToDateTime(reader["EndDate"]),
+                            Price = Convert.ToDecimal(reader["Price"]),
+                            Status = reader["Status"].ToString()
+                        };
+                        pendingBookings.Add(booking);
+                    }
+                }
+            }
+        }
+
+        return pendingBookings;
     }
 
 
+
+
+    public void ShowPendingBookings(GetFromDatabase bookingSystem)
+    {
+        var pendingBookings = bookingSystem.GetPendingBookings();
+
+        if (pendingBookings.Count == 0)
+        {
+            Console.WriteLine("No pending bookings.");
+            return;
+        }
+
+        Console.WriteLine("Pending Bookings:");
+        foreach (var booking in pendingBookings)
+        {
+            Console.WriteLine($"ID: {booking.Id}, UserID: {booking.UserId}, Start Date: {booking.StartDate.ToShortDateString()}, End Date: {booking.EndDate.ToShortDateString()}, Price: {booking.Price}, Status: {booking.Status}");
+        }
+    }
+
+    // Confirm a Booking
+    public void ConfirmBooking(InsertToDatabase bookingSystem)
+    {
+        Console.WriteLine("Enter the Booking ID to confirm:");
+        int bookingId = Convert.ToInt32(Console.ReadLine());
+
+        // Confirm the booking
+        bookingSystem.ConfirmBooking(bookingId);
+    }
 }
