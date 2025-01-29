@@ -14,13 +14,16 @@ public class BrugerLejer
     public string Efternavn { get; set; }
     public string Adgangskode { get; set; }
     public string Salt { get; set; }
+    public string Role { get; internal set; }
 
-    public BrugerLejer(string fornavn, string efternavn, string adgangskode, string salt)
+    public BrugerLejer(){}
+    public BrugerLejer(string fornavn, string efternavn, string adgangskode, string salt, string role)
     {
         Id = NextId++;
         Fornavn = fornavn;
         Efternavn = efternavn;
         Adgangskode = adgangskode;
         Salt = salt;
+        Role = role;
     }
 }

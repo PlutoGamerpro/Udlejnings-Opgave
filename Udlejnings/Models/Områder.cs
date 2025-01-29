@@ -11,6 +11,8 @@ public class Områder
     public static int NextId = 1;
     public string OmrådeNavn { get; set; }
 
+    public Områder(){}
+
     public Områder(string Områdenavn)
     {
         OmrådeNavn = Områdenavn;

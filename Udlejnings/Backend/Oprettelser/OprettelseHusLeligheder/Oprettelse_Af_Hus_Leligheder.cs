@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Udlejnings.Backend.SqlCrud.InsertOperations;
 using Udlejnings.Models;
 
 namespace Udlejnings.Backend.Oprettelser.OprettelseHusLeligheder;
@@ -9,20 +10,36 @@ namespace Udlejnings.Backend.Oprettelser.OprettelseHusLeligheder;
 public class Oprettelse_Af_Hus_Leligheder
 {
     
+
+
+    bool KeepRuning = true;
+    float OkInputKvalitet = 0;
+    float OKInputSengeAntal = 0;
+    bool PrisKlasseInputValid = false;
+    float price = 0;
+    string VælgPrisKlasse = "";
+
+
     public void Oprettelse_Af_Sommerhus()
     {
-        
-        Console.WriteLine("Senge Antal: ");
+        KeepRuning = true;
+        OkInputKvalitet = 0;
+        OKInputSengeAntal = 0;
+        PrisKlasseInputValid = false;
+        price = 0;
+        VælgPrisKlasse = "";
+
+        InsertToDatabase insertToDatabase = new InsertToDatabase();
+        Prisseasoner prisseasoner = new Prisseasoner();
+        // if error set start value on values again 
+
+        Console.Write("Senge Antal: ");
         string InputSengeAntal = Console.ReadLine();
 
-        Console.WriteLine("Kvalitet: ");
+        Console.Write("Kvalitet: ");
         string InputKvalitet = Console.ReadLine();
 
-        bool KeepRuning = true;
-        float OkInputKvalitet = 0;
-        float OKInputSengeAntal = 0;
-        double price = 0;
-        bool PrisKlasseInputValid = false;
+        
 
         while (KeepRuning)
         {
@@ -40,39 +57,49 @@ public class Oprettelse_Af_Hus_Leligheder
         // sender lav logik så bestemt uger har super pris lige meget hvad
         while (!PrisKlasseInputValid)
         {
-            Console.WriteLine("Vælg pris klassen : Super, Høj, Mellem, Lav");
-            string VælgPrisKlasse = Console.ReadLine();
-            switch (VælgPrisKlasse)
+            Console.Write("Vælg pris klassen : Super, Høj, Mellem, Lav: ");
+            VælgPrisKlasse = Console.ReadLine();
+
+            if (prisseasoner.PriceMapping.ContainsKey(VælgPrisKlasse))
             {
-                case "Super": PrisKlasseInputValid = true; break;
-                case "Høj": PrisKlasseInputValid = true; break;
-                case "Mellem": PrisKlasseInputValid = true; break;
-                case "Lav": PrisKlasseInputValid = true; break;
-                default: Console.WriteLine("Inputet er invalid"); break;
+                price = prisseasoner.PriceMapping[VælgPrisKlasse];
+                PrisKlasseInputValid = true;
             }
+            else { Console.WriteLine("Invalid input Super, Høj, Mellem, Lav"); }
         }
-    
-    Sommerhuse sommerhuse = new Sommerhuse(OKInputSengeAntal, OkInputKvalitet);
-    // penge season skal komme ind her og blive support om instance klassen
-    // mangler at tilføje så penge option er en mulighed.....
-     
+        Console.WriteLine($"Du har valgt pris klasse: {VælgPrisKlasse}, og prisen er: {price} kr.");
+
+        Sommerhuse sommerhuse = new Sommerhuse(OKInputSengeAntal, OkInputKvalitet, price);
+        
+        insertToDatabase.InsertSommerhusToDatabase(sommerhuse);
+
+        Console.Write("PRES any KEY to Continue: ");
+        Console.ReadKey();
+        // penge season skal komme ind her og blive support om instance klassen
+        // mangler at tilføje så penge option er en mulighed.....
+
     }
     public void Oprettelse_Af_Lelighed()
     {
+        KeepRuning = true;
+        OkInputKvalitet = 0;
+        OKInputSengeAntal = 0;
+        PrisKlasseInputValid = false;
+        price = 0;
+        VælgPrisKlasse = "";
+
+        InsertToDatabase insertToDatabase = new InsertToDatabase();
+        // if error set start value on values again 
+
         Prisseasoner prisseasoner = new Prisseasoner();
 
-        Console.WriteLine("Senge Antal: ");
+        Console.Write("Senge Antal: ");
         string InputSengeAntal = Console.ReadLine();
 
-        Console.WriteLine("Kvalitet: ");
+        Console.Write("Kvalitet: ");
         string InputKvalitet = Console.ReadLine();
 
-        bool KeepRuning = true;
-        float OkInputKvalitet = 0;
-        float OKInputSengeAntal = 0;
-        bool PrisKlasseInputValid = false;
-        float price = 0;
-        string VælgPrisKlasse ="";
+
 
         while (KeepRuning)
         {
@@ -88,23 +115,27 @@ public class Oprettelse_Af_Hus_Leligheder
             }
             else { Console.WriteLine("Inputet er invalid (0 - 10 KVALITET)"); }
         }
-
+        // sender lav logik så bestemt uger har super pris lige meget hvad
         while (!PrisKlasseInputValid)
         {
-            Console.WriteLine("Vælg pris klassen : Super, Høj, Mellem, Lav");
-           VælgPrisKlasse = Console.ReadLine();
+            Console.Write("Vælg pris klassen : Super, Høj, Mellem, Lav: ");
+            VælgPrisKlasse = Console.ReadLine();
 
-            if (prisseasoner.PriceMapping.ContainsKey(())){
+            if (prisseasoner.PriceMapping.ContainsKey(VælgPrisKlasse))
+            {
                 price = prisseasoner.PriceMapping[VælgPrisKlasse];
                 PrisKlasseInputValid = true;
-           } else { Console.WriteLine("Invalid input"); }
+            }
+            else { Console.WriteLine("Invalid input Super, Høj, Mellem, Lav"); }
         }
         Console.WriteLine($"Du har valgt pris klasse: {VælgPrisKlasse}, og prisen er: {price} kr.");
-        Lejlheder lejlheder = new Lejlheder(OKInputSengeAntal, OkInputKvalitet, price);
 
-        
-        // opret et opret af lelighed og få det tilføjes til database 
+        Lejlheder lejlhed = new Lejlheder(OKInputSengeAntal, OkInputKvalitet, price);
 
+        insertToDatabase.InsertLejlhedToDatabase(lejlhed);
+
+        Console.Write("PRES any KEY to Continue: ");
+        Console.ReadKey();
 
     }
 }

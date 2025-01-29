@@ -12,11 +12,11 @@ public class Lejlheder
     public static int NextId = 1;
     public float Senge { get; set; }
     public float Kvalitet { get; set; }
-
-    public float Price;
+    public float Price { get; set; }
 
     // pris skal nok have sin egen klasse fordi den kan være 3 forskellige .... 
 
+    public Lejlheder(){}
     public Lejlheder(float senge, float kvalitet, float price)
     {
         Id = NextId++;
