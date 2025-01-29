@@ -26,10 +26,10 @@ public class Oprettelse_Af_Hus_Leligheder
         Prisseasoner prisseasoner = new Prisseasoner();
         // if error set start value on values again 
 
-        Console.WriteLine("Senge Antal: ");
+        Console.Write("Senge Antal: ");
         string InputSengeAntal = Console.ReadLine();
 
-        Console.WriteLine("Kvalitet: ");
+        Console.Write("Kvalitet: ");
         string InputKvalitet = Console.ReadLine();
 
 
@@ -49,7 +49,7 @@ public class Oprettelse_Af_Hus_Leligheder
         // sender lav logik så bestemt uger har super pris lige meget hvad
         while (!PrisKlasseInputValid)
         {
-            Console.WriteLine("Vælg pris klassen : Super, Høj, Mellem, Lav");
+            Console.Write("Vælg pris klassen : Super, Høj, Mellem, Lav: ");
             VælgPrisKlasse = Console.ReadLine();
 
             if (prisseasoner.PriceMapping.ContainsKey(VælgPrisKlasse))
@@ -57,7 +57,7 @@ public class Oprettelse_Af_Hus_Leligheder
                 price = prisseasoner.PriceMapping[VælgPrisKlasse];
                 PrisKlasseInputValid = true;
             }
-            else { Console.WriteLine("Invalid input"); }
+            else { Console.WriteLine("Invalid input Super, Høj, Mellem, Lav"); }
         }
         Console.WriteLine($"Du har valgt pris klasse: {VælgPrisKlasse}, og prisen er: {price} kr.");
 
@@ -75,10 +75,10 @@ public class Oprettelse_Af_Hus_Leligheder
 
         Prisseasoner prisseasoner = new Prisseasoner();
 
-        Console.WriteLine("Senge Antal: ");
+        Console.Write("Senge Antal: ");
         string InputSengeAntal = Console.ReadLine();
 
-        Console.WriteLine("Kvalitet: ");
+        Console.Write("Kvalitet: ");
         string InputKvalitet = Console.ReadLine();
 
          
@@ -100,21 +100,32 @@ public class Oprettelse_Af_Hus_Leligheder
 
         while (!PrisKlasseInputValid)
         {
-            Console.WriteLine("Vælg pris klassen : Super, Høj, Mellem, Lav");
-           VælgPrisKlasse = Console.ReadLine();
+            Console.Write("Vælg pris klassen : Super, Høj, Mellem, Lav: ");
+            VælgPrisKlasse = Console.ReadLine().Trim();  // Trim any extra spaces
 
-            if (prisseasoner.PriceMapping.ContainsKey(VælgPrisKlasse)){
+            // Convert input to uppercase to handle case insensitivity
+            VælgPrisKlasse = VælgPrisKlasse.ToUpper();
+
+            // Debugging output (optional)
+            Console.WriteLine($"User input: '{VælgPrisKlasse}'");
+
+            if (prisseasoner.PriceMapping.ContainsKey(VælgPrisKlasse))
+            {
                 price = prisseasoner.PriceMapping[VælgPrisKlasse];
                 PrisKlasseInputValid = true;
-           } else { Console.WriteLine("Invalid input"); }
+                Console.WriteLine("Pres KEY to Continue");
+                Console.ReadKey();
+            }
+            else
+            {
+                Console.WriteLine("Invalid input. Please choose between Super, Høj, Mellem, Lav.");
+            }
         }
+
         Console.WriteLine($"Du har valgt pris klasse: {VælgPrisKlasse}, og prisen er: {price} kr.");
         Lejlheder lejlheder = new Lejlheder(OKInputSengeAntal, OkInputKvalitet, price);
 
         insertToDatabase.InsertLejlhedToDatabase(lejlheder);
-        
-        // opret et opret af lelighed og få det tilføjes til database 
-
 
     }
 }

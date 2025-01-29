@@ -7,6 +7,7 @@ using Udlejnings.Backend.EditingLH;
 using Udlejnings.Backend.Oprettelser.OprettelseHusLeligheder;
 using Udlejnings.Backend.SqlCrud.GetOperation;
 using Udlejnings.Backend.SqlCrud.InsertOperations;
+using Udlejnings.Models;
 
 namespace Udlejnings.Backend.MenuDisplayer
 {
@@ -45,7 +46,7 @@ namespace Udlejnings.Backend.MenuDisplayer
                 {
                     case "1": brugerOprettelse.CreateUser(); Console.WriteLine("OpretBruger"); break;
                     case "2": brugerlogin.CheckLoginInfo(); Console.WriteLine("Login ind"); break;
-                    case "3": getFromDatabase.FetchLejlhederFromDatabase(); getFromDatabase.FetchSommerhuseFromDatabase(); Console.WriteLine("Se Ledlige lejlheder / sommerhuse"); break;
+                    case "3":  getFromDatabase.ShowPendingBookings(getFromDatabase); Console.WriteLine("Se Ledlige lejlheder / sommerhuse"); break;
                     case "4": Console.WriteLine("Afslutet Program"); Environment.Exit(0); break;
 
                     default: Console.WriteLine("Vælg en af overstående muligheder"); break;
@@ -99,11 +100,12 @@ namespace Udlejnings.Backend.MenuDisplayer
                 switch (BrugerInput)
                 {
                     case "1": oprettelse_Af_Hus_Leligheder.Oprettelse_Af_Sommerhus(); Console.WriteLine("Opret Sommerhus"); break;
-                    case "2": edit_Sommerhus_Lejlhed.EditSommerhus(); Console.WriteLine("Rediger Sommerhus"); break;
+                    case "2": edit_Sommerhus_Lejlhed.EditOrDeleteSommerhus(); Console.WriteLine("Rediger Sommerhus / Delete"); break;
                     case "3": oprettelse_Af_Hus_Leligheder.Oprettelse_Af_Lelighed(); Console.WriteLine("Opret Lejlhed"); break;
-                    case "4": edit_Sommerhus_Lejlhed.EditLejlighed(); Console.WriteLine("Rediger Lejlhed"); break;
+                    case "4": edit_Sommerhus_Lejlhed.EditOrDeleteLejlhed(); Console.WriteLine("Rediger Lejlhed / Delete"); break;
+                    case "5": getFromDatabase.FetchLejlhederFromDatabase(); getFromDatabase.FetchSommerhuseFromDatabase(); break;
                    // case "5": getFromDatabase.FetchLejlhederFromDatabase(); getFromDatabase.FetchSommerhuseFromDatabase(); Console.WriteLine("Se Ledige lejlheder / sommerhuse"); break;
-                    case "5": getFromDatabase.ShowPendingBookings(bookingSystem); Console.WriteLine("Se Ledige lejlheder / sommerhuse"); break;
+                   // case "5": getFromDatabase.ShowPendingBookings(bookingSystem); Console.WriteLine(""); break;
                     case "6": getFromDatabase.ConfirmBooking(BookingSystem); Console.WriteLine("Comfirm lejlhed / sommerhus"); break;
                     case "7": brugermenu.OperationManager(); Console.WriteLine("Tilbage til hovedmenu"); break;
                     case "8": Console.WriteLine("Afslutet Program "); Environment.Exit(0); break;
@@ -118,30 +120,32 @@ namespace Udlejnings.Backend.MenuDisplayer
         {
             Console.WriteLine("Udlejnings MENU");
 
-            Console.WriteLine("1. Lån Sommerhus");
+            Console.WriteLine("1. Lån Sommerhus / Lån Lejlhed");
             // stop lån 
-            Console.WriteLine("2. Lån Lejlhed");
             Console.WriteLine("3. Gå tilbage til hovedmenu");
             Console.WriteLine("4. Afslut program");
         }
 
         public void BrugerOperationManager()
         {
+            InsertToDatabase insertToDatabase = new InsertToDatabase();
+
             Booking_Sommerhus_Lejlhed booking_Sommerhus_Lejlhed = new Booking_Sommerhus_Lejlhed();
             Brugermenu brugermenu = new Brugermenu();
+            BrugerLejer currentUser = ObjektSaving.CurrentUser;
+
             while (true)
             { // program on loop-- never need to be false...
-                Console.Write("Vælg Mulighed 1,2,3,4 : ");
+                
                 BrugerLoggedIn();
                 // if userenter one of the options below then exits the loop 
-
+                Console.Write("Vælg Mulighed 1,2,3 : ");
                 string BrugerInput = Console.ReadLine();
                 switch (BrugerInput)
                 {
-                    case "1": booking_Sommerhus_Lejlhed.CreateBookingMenu(); Console.WriteLine("Lån Sommerhus"); break;
-                    case "2": Console.WriteLine("Lån Lejlhed"); break;
-                    case "3": Console.WriteLine("Gå tilbage til hovedmenu"); break;
-                    case "4": brugermenu.OperationManager(); Console.WriteLine("Afslut program"); break;
+                    case "1": booking_Sommerhus_Lejlhed.CreateBookingMenu(currentUser); Console.WriteLine("Lån Sommerhus / Lån Lejlhed"); break;
+                    case "3": brugermenu.OperationManager();  Console.WriteLine("Gå tilbage til hovedmenu"); break;
+                    case "4": Environment.Exit(0); Console.WriteLine("Afslut program"); break;
                     default: Console.WriteLine("Vælg en af overstående muligheder"); break;
 
                 }

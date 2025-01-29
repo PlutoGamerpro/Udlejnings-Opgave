@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Udlejnings.Backend.SqlCrud.EditingOperation;
@@ -10,16 +12,59 @@ namespace Udlejnings.Backend.EditingLH;
 public class Edit_Sommerhus_Lejlhed
 {
 
-    EditFromDatabase editFromDatabase = new EditFromDatabase();
+    public void EditOrDeleteSommerhus(){
+        Console.WriteLine("Rediger OR Slet - Sommerhus");
+        Console.WriteLine("1. Rediger Sommerhus");
+        Console.WriteLine("2. Slet Sommerhus");
+
+        DeleteSommerhusLejlhed deleteSommerhusLejlhed = new DeleteSommerhusLejlhed();
+        string VælgValgmulighed = Console.ReadLine();
+
+    while(true){
+            switch (VælgValgmulighed)
+            {
+                case "1": EditSommerhus(); break;
+                case "2": deleteSommerhusLejlhed.DeleteSommerhusMenu(); break;
+                default: Console.WriteLine("Invalid input: 1, 2"); break;
+            }
+            
+        }
+    }
+
+    public void EditOrDeleteLejlhed()
+    {
+        Console.WriteLine("Rediger OR Slet - Lejlhed");
+        Console.WriteLine("1. Rediger Lejlhed");
+        Console.WriteLine("2. Slet Lejlhed");
+
+        DeleteSommerhusLejlhed deleteSommerhusLejlhed = new DeleteSommerhusLejlhed();
+        string VælgValgmulighed = Console.ReadLine();
+
+        while (true)
+        {
+            switch (VælgValgmulighed)
+            {
+                case "1": EditLejlighed(); break;
+                case "2": deleteSommerhusLejlhed.DeleteLejlhedMenu(); break;
+                default: Console.WriteLine("Invalid input: 1, 2"); break;
+            }
+
+        }
+    }
+
+
+
     public void EditSommerhus()
     {
+        EditFromDatabase editFromDatabase = new EditFromDatabase();
+
         Console.WriteLine("Rediger Sommerhus");
 
         Console.WriteLine("Indtast Sommerhus ID (for at finde den sommerhus, der skal redigeres): ");
         int sommerhusId = int.Parse(Console.ReadLine());
 
         // Fetch current values from the database 
-       
+
         Sommerhuse existingSommerhus = editFromDatabase.FetchSommerhusFromDatabase(sommerhusId);
 
         if (existingSommerhus == null)
@@ -71,6 +116,8 @@ public class Edit_Sommerhus_Lejlhed
     }
     public void EditLejlighed()
     {
+        EditFromDatabase editFromDatabase = new EditFromDatabase();
+
         Console.WriteLine("Rediger Lejlighed");
 
         Console.WriteLine("Indtast Lejlighed ID (for at finde den lejlighed, der skal redigeres): ");
@@ -124,6 +171,6 @@ public class Edit_Sommerhus_Lejlhed
         Lejlheder updatedLejlighed = new Lejlheder(sengeAntal, kvalitet, pris);
 
         // Update in the database
-       editFromDatabase.UpdateLejlighedInDatabase(lejlighedId, updatedLejlighed);
+        editFromDatabase.UpdateLejlighedInDatabase(lejlighedId, updatedLejlighed);
     }
 }

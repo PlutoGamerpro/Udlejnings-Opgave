@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Udlejnings.Models;
 using Microsoft.Data.SqlClient;
-using Udlejnings.Backend.SqlCrud.InsertOperations;  // Use this namespace instead
+using Udlejnings.Backend.SqlCrud.InsertOperations;
+using System.Data;  // Use this namespace instead
 
 namespace Udlejnings.Backend.SqlCrud.GetOperation;
 
@@ -33,9 +34,10 @@ public class GetFromDatabase
                 {
                     Lejlheder lejlhed = new Lejlheder
                     {
-                        Senge = reader.GetFloat(0),
-                        Kvalitet = reader.GetFloat(1),
-                        Price = reader.GetFloat(2)
+                        
+                        Senge = (float)reader.GetDouble(0),         // Convert from double to float explicitly
+                        Kvalitet = (float)reader.GetDouble(1),      // Convert from double to float explicitly
+                        Price = (float)reader.GetDouble(2)
                     };
                     lejlhederList.Add(lejlhed);
                 }
@@ -45,7 +47,7 @@ public class GetFromDatabase
         Console.WriteLine("Lejlheder i databasen:");
         foreach (var lejlhed in lejlhederList)
         {
-            Console.WriteLine($"Senge: {lejlhed.Senge}, Kvalitet: {lejlhed.Kvalitet}, Pris: {lejlhed.Price:C}");
+            Console.WriteLine($"Id {lejlhed.Id}, Senge: {lejlhed.Senge}, Kvalitet: {lejlhed.Kvalitet}, Pris: {lejlhed.Price:C}");
         }
     }
 
@@ -55,18 +57,20 @@ public class GetFromDatabase
         {
             connection.Open();
 
-            string query = "SELECT SengeAntal, Kvalitet, Pris FROM Sommerhuse";
+            string query = "SELECT ID,SengeAntal, Kvalitet, Pris FROM Sommerhuse";
 
             using (SqlCommand command = new SqlCommand(query, connection))
             using (SqlDataReader reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
+
                     Sommerhuse sommerhus = new Sommerhuse
                     {
-                        Senge = reader.GetFloat(0),         // SengeAntal is a float
-                        Kvalitet = reader.GetFloat(1),      // Kvalitet is a float
-                        Price = reader.GetFloat(2)          // Pris is a float
+                        Id = reader.GetInt32(0),
+                        Senge = (float)reader.GetDouble(0),         // Convert from double to float explicitly
+                        Kvalitet = (float)reader.GetDouble(1),      // Convert from double to float explicitly
+                        Price = (float)reader.GetDouble(2)           // Pris is a float
                     };
                     SommerhusList.Add(sommerhus);
                 }
@@ -77,7 +81,7 @@ public class GetFromDatabase
         Console.WriteLine("Sommerhuse i databasen:");
         foreach (var sommerhus in SommerhusList)
         {
-            Console.WriteLine($"Senge: {sommerhus.Senge}, Kvalitet: {sommerhus.Kvalitet}, Pris: {sommerhus.Price}");
+            Console.WriteLine($"Id {sommerhus.Id}, Senge: {sommerhus.Senge}, Kvalitet: {sommerhus.Kvalitet}, Pris: {sommerhus.Price}");
         }
     }
     public void FetchOmråderFromDatabase()
@@ -182,6 +186,7 @@ public class GetFromDatabase
         }
 
         return pendingBookings;
+        
     }
 
 
@@ -202,6 +207,8 @@ public class GetFromDatabase
         {
             Console.WriteLine($"ID: {booking.Id}, UserID: {booking.UserId}, Start Date: {booking.StartDate.ToShortDateString()}, End Date: {booking.EndDate.ToShortDateString()}, Price: {booking.Price}, Status: {booking.Status}");
         }
+        Console.WriteLine("Pres KEY to Continue");
+        Console.ReadKey();
     }
 
     // Confirm a Booking
@@ -212,5 +219,8 @@ public class GetFromDatabase
 
         // Confirm the booking
         bookingSystem.ConfirmBooking(bookingId);
+
+        Console.WriteLine("Pres KEY to Continue");
+        Console.ReadKey();
     }
 }

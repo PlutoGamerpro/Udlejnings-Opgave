@@ -76,6 +76,8 @@ Efternavn VARCHAR(20),
 CONSTRAINT Udlejningskonsulent_PK_KEY PRIMARY KEY (ID),
 );
 
+
+
 CREATE TABLE Områder(
 ID INT IDENTITY(1,1),
 OmrådeNavn VARCHAR(30),

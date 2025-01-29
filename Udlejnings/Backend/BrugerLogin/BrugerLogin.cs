@@ -8,15 +8,18 @@ using System.Security.Cryptography;
 using System.Text;
 using Udlejnings.Models;
 using Udlejnings.Backend.SqlCrud.GetOperation;
+using Microsoft.Identity.Client;
 
 namespace Udlejnings.Backend.BrugerLogin;
 
+
 public class BrugerLogin
 { /// add logic to test if login was ----- admin or normal user so you know what mean you
-  
+    
 
     public void CheckLoginInfo()
     {
+        
         Brugermenu brugermenu1 = new Brugermenu();
         GetFromDatabase getFromDatabase = new GetFromDatabase();
 
@@ -27,22 +30,25 @@ public class BrugerLogin
 
         Console.Write("Input Adgangskode: ");
         string DitPassword = Console.ReadLine();
-
+        
         // Validate the user's login (using the old method, now optional)
         if (ValidateUserLogin(DitBrugerNavn, DitPassword))
         {
+
             // Fetch the user from the database by Fornavn to get their role
             BrugerLejer user = getFromDatabase.FetchUserFromDatabase(DitBrugerNavn);
+           ObjektSaving.CurrentUser = user;
+            // BrugerLejer user = getFromDatabase.FetchUserFromDatabase(DitBrugerNavn);
 
             // Check the role and perform actions accordingly
             if (user != null)
             {
                 if (user.Role == "admin" || user.Role == "Konsulent" )
                 {
-                    
+                    GetFromDatabase tst = new GetFromDatabase();
                     Console.WriteLine("Admin login successful. Admin methods are now available.");
                     Console.WriteLine($"User Found: {user.Fornavn} {user.Efternavn}, Role: {user.Role}");
-                    brugermenu1.AdminOperationManager(); // Admin-specific methods
+                    brugermenu1.AdminOperationManager(tst); // Admin-specific methods
 
                     
                 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Udlejnings.Backend.SqlCrud.GetOperation;
 using Udlejnings.Backend.SqlCrud.InsertOperations;
 using Udlejnings.Models;
 
@@ -21,19 +22,24 @@ public class Booking_Sommerhus_Lejlhed
         Console.WriteLine("Select a property to book:");
         Console.WriteLine("1. Sommerhus");
         Console.WriteLine("2. Lejlighed");
+        Console.Write("Input 1 / 2: ");
         int propertyChoice = Convert.ToInt32(Console.ReadLine());
 
         int? sommerhusId = null;
         int? lejlighedId = null;
 
+        GetFromDatabase getFromDatabase = new GetFromDatabase();
+        getFromDatabase.FetchSommerhuseFromDatabase();
+        
+
         if (propertyChoice == 1)
         {
-            Console.WriteLine("Enter Sommerhus ID:");
+            Console.Write("Enter Sommerhus ID: ");
             sommerhusId = Convert.ToInt32(Console.ReadLine());
         }
         else if (propertyChoice == 2)
         {
-            Console.WriteLine("Enter Lejlighed ID:");
+            Console.Write("Enter Lejlighed ID:");
             lejlighedId = Convert.ToInt32(Console.ReadLine());
         }
         else

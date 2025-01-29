@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Data;
 using Udlejnings.Backend.MenuDisplayer;
+using Udlejnings.Backend.SqlCrud.GetOperation;
 
 namespace Udlejnings.Backend.BrugerOprettelse
 {
@@ -69,7 +70,8 @@ namespace Udlejnings.Backend.BrugerOprettelse
 
             if (Role.Equals("admin", StringComparison.OrdinalIgnoreCase))
             {
-                brugermenu.AdminOperationManager();
+                GetFromDatabase test = new GetFromDatabase();
+                brugermenu.AdminOperationManager(test);
             }
             else
             {
