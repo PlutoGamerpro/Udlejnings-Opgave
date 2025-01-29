@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Udlejnings.Backend.MenuDisplayer;
 using Udlejnings.Backend.SqlCrud.EditingOperation;
+using Udlejnings.Backend.SqlCrud.GetOperation;
 using Udlejnings.Models;
 
 namespace Udlejnings.Backend.EditingLH;
@@ -12,22 +14,25 @@ namespace Udlejnings.Backend.EditingLH;
 public class Edit_Sommerhus_Lejlhed
 {
 
-    public void EditOrDeleteSommerhus(){
+    public void EditOrDeleteSommerhus()
+    {
         Console.WriteLine("Rediger OR Slet - Sommerhus");
         Console.WriteLine("1. Rediger Sommerhus");
         Console.WriteLine("2. Slet Sommerhus");
 
         DeleteSommerhusLejlhed deleteSommerhusLejlhed = new DeleteSommerhusLejlhed();
+        Console.Write("Input 1 / 2: ");
         string VælgValgmulighed = Console.ReadLine();
 
-    while(true){
+        while (true)
+        {
             switch (VælgValgmulighed)
             {
                 case "1": EditSommerhus(); break;
                 case "2": deleteSommerhusLejlhed.DeleteSommerhusMenu(); break;
                 default: Console.WriteLine("Invalid input: 1, 2"); break;
             }
-            
+
         }
     }
 
@@ -38,6 +43,7 @@ public class Edit_Sommerhus_Lejlhed
         Console.WriteLine("2. Slet Lejlhed");
 
         DeleteSommerhusLejlhed deleteSommerhusLejlhed = new DeleteSommerhusLejlhed();
+        Console.Write("Input 1 / 2: ");
         string VælgValgmulighed = Console.ReadLine();
 
         while (true)
@@ -57,120 +63,167 @@ public class Edit_Sommerhus_Lejlhed
     public void EditSommerhus()
     {
         EditFromDatabase editFromDatabase = new EditFromDatabase();
+        GetFromDatabase getFromDatabase = new GetFromDatabase();
+        Brugermenu brugermenu = new Brugermenu();
 
-        Console.WriteLine("Rediger Sommerhus");
-
-        Console.WriteLine("Indtast Sommerhus ID (for at finde den sommerhus, der skal redigeres): ");
-        int sommerhusId = int.Parse(Console.ReadLine());
-
-        // Fetch current values from the database 
-
-        Sommerhuse existingSommerhus = editFromDatabase.FetchSommerhusFromDatabase(sommerhusId);
-
-        if (existingSommerhus == null)
+        while (true) // Start a loop to continuously check for user input
         {
-            Console.WriteLine("Sommerhus med dette ID blev ikke fundet.");
-            return;
+            getFromDatabase.FetchSommerhuseFromDatabase();
+
+            Console.Write("Indtast Sommerhus ID (for at finde den sommerhus, der skal redigeres) eller tryk 'Q' for at afslutte: ");
+            string userInput = Console.ReadLine();
+
+            // Allow the user to quit by pressing 'Q'
+            if (userInput.ToUpper() == "Q")
+            {
+                Console.WriteLine("Afslutter redigeringen.");
+                brugermenu.AdminOperationManager(getFromDatabase);
+                break; // Exit the loop
+            }
+
+            int sommerhusId;
+            if (!int.TryParse(userInput, out sommerhusId))
+            {
+                Console.WriteLine("Ugyldigt ID. Prøv igen.");
+                continue;
+            }
+
+            // Fetch current values from the database 
+            Sommerhuse existingSommerhus = editFromDatabase.FetchSommerhusFromDatabase(sommerhusId);
+
+            if (existingSommerhus == null)
+            {
+                Console.WriteLine("Sommerhus med dette ID blev ikke fundet.");
+                continue; // Continue the loop if no sommerhus found
+            }
+
+            // Prompt for new values, default to the current ones
+            Console.Write($"Nuvarande Senge Antal: {existingSommerhus.Senge}. Indtast nyt Senge Antal: ");
+            string inputSengeAntal = Console.ReadLine();
+            if (string.IsNullOrEmpty(inputSengeAntal)) inputSengeAntal = existingSommerhus.Senge.ToString();
+
+            Console.Write($"Nuvarande Kvalitet: {existingSommerhus.Kvalitet}. Indtast ny Kvalitet: ");
+            string inputKvalitet = Console.ReadLine();
+            if (string.IsNullOrEmpty(inputKvalitet)) inputKvalitet = existingSommerhus.Kvalitet.ToString();
+
+            Console.Write($"Nuvarande Pris: {existingSommerhus.Price}. Indtast ny Pris: ");
+            string inputPris = Console.ReadLine();
+            if (string.IsNullOrEmpty(inputPris)) inputPris = existingSommerhus.Price.ToString();
+
+            // Validate inputs
+            float sengeAntal;
+            if (!float.TryParse(inputSengeAntal, out sengeAntal) || sengeAntal <= 0)
+            {
+                Console.WriteLine("Ugyldigt Senge Antal");
+                continue; // Continue the loop if input is invalid
+            }
+
+            float kvalitet;
+            if (!float.TryParse(inputKvalitet, out kvalitet) || kvalitet <= 0)
+            {
+                Console.WriteLine("Ugyldig Kvalitet");
+                continue; // Continue the loop if input is invalid
+            }
+
+            float pris;
+            if (!float.TryParse(inputPris, out pris) || pris <= 0)
+            {
+                Console.WriteLine("Ugyldig Pris");
+                continue; // Continue the loop if input is invalid
+            }
+
+            // Create the updated object
+            Sommerhuse updatedSommerhus = new Sommerhuse(sengeAntal, kvalitet, pris);
+
+            // Update in the database
+            editFromDatabase.UpdateSommerhusInDatabase(sommerhusId, updatedSommerhus);
+            Console.WriteLine("Sommerhus er blevet opdateret.");
+            Console.Write("Pres KEY to Continue: ");
+            Console.ReadKey();
         }
-
-        // Prompt for new values, default to the current ones
-        Console.WriteLine($"Nuvarande Senge Antal: {existingSommerhus.Senge}. Indtast nyt Senge Antal: ");
-        string inputSengeAntal = Console.ReadLine();
-        if (string.IsNullOrEmpty(inputSengeAntal)) inputSengeAntal = existingSommerhus.Senge.ToString();
-
-        Console.WriteLine($"Nuvarande Kvalitet: {existingSommerhus.Kvalitet}. Indtast ny Kvalitet: ");
-        string inputKvalitet = Console.ReadLine();
-        if (string.IsNullOrEmpty(inputKvalitet)) inputKvalitet = existingSommerhus.Kvalitet.ToString();
-
-        Console.WriteLine($"Nuvarande Pris: {existingSommerhus.Price}. Indtast ny Pris: ");
-        string inputPris = Console.ReadLine();
-        if (string.IsNullOrEmpty(inputPris)) inputPris = existingSommerhus.Price.ToString();
-
-        // Validate inputs
-        float sengeAntal;
-        if (!float.TryParse(inputSengeAntal, out sengeAntal) || sengeAntal <= 0)
-        {
-            Console.WriteLine("Ugyldigt Senge Antal");
-            return;
-        }
-
-        float kvalitet;
-        if (!float.TryParse(inputKvalitet, out kvalitet) || kvalitet <= 0)
-        {
-            Console.WriteLine("Ugyldig Kvalitet");
-            return;
-        }
-
-        float pris;
-        if (!float.TryParse(inputPris, out pris) || pris <= 0)
-        {
-            Console.WriteLine("Ugyldig Pris");
-            return;
-        }
-
-        // Create the updated object
-        Sommerhuse updatedSommerhus = new Sommerhuse(sengeAntal, kvalitet, pris);
-
-        // Update in the database
-        editFromDatabase.UpdateSommerhusInDatabase(sommerhusId, updatedSommerhus);
     }
     public void EditLejlighed()
     {
         EditFromDatabase editFromDatabase = new EditFromDatabase();
-
+        GetFromDatabase getFromDatabase = new GetFromDatabase();
+        Brugermenu brugermenu = new Brugermenu();
         Console.WriteLine("Rediger Lejlighed");
 
-        Console.WriteLine("Indtast Lejlighed ID (for at finde den lejlighed, der skal redigeres): ");
-        int lejlighedId = int.Parse(Console.ReadLine());
-
-        // Fetch current values from the database
-        Lejlheder existingLejlighed = editFromDatabase.FetchLejlighedFromDatabase(lejlighedId);
-
-        if (existingLejlighed == null)
+        while (true) // Start a loop to continuously check for user input
         {
-            Console.WriteLine("Lejlighed med dette ID blev ikke fundet.");
-            return;
+            getFromDatabase.FetchLejlhederFromDatabase();
+
+            Console.Write("Indtast Lejlighed ID (for at finde den lejlighed, der skal redigeres) eller tryk 'Q' for at afslutte: ");
+            string userInput = Console.ReadLine();
+
+            // Allow the user to quit by pressing 'Q'
+            if (userInput.ToUpper() == "Q")
+            {
+                Console.WriteLine("Afslutter redigeringen.");
+                brugermenu.AdminOperationManager(getFromDatabase);
+                break; // Exit the loop
+            }
+
+            int lejlighedId;
+            if (!int.TryParse(userInput, out lejlighedId))
+            {
+                Console.WriteLine("Ugyldigt ID. Prøv igen.");
+                continue; // Continue the loop if the ID is invalid
+            }
+
+            // Fetch current values from the database
+            Lejlheder existingLejlighed = editFromDatabase.FetchLejlighedFromDatabase(lejlighedId);
+
+            if (existingLejlighed == null)
+            {
+                Console.WriteLine("Lejlighed med dette ID blev ikke fundet.");
+                continue; // Continue the loop if no lejlighed found
+            }
+
+            // Prompt for new values, default to the current ones
+            Console.Write($"Nuvarande Senge Antal: {existingLejlighed.Senge}. Indtast nyt Senge Antal: ");
+            string inputSengeAntal = Console.ReadLine();
+            if (string.IsNullOrEmpty(inputSengeAntal)) inputSengeAntal = existingLejlighed.Senge.ToString();
+
+            Console.Write($"Nuvarande Kvalitet: {existingLejlighed.Kvalitet}. Indtast ny Kvalitet: ");
+            string inputKvalitet = Console.ReadLine();
+            if (string.IsNullOrEmpty(inputKvalitet)) inputKvalitet = existingLejlighed.Kvalitet.ToString();
+
+            Console.Write($"Nuvarande Pris: {existingLejlighed.Price}. Indtast ny Pris: ");
+            string inputPris = Console.ReadLine();
+            if (string.IsNullOrEmpty(inputPris)) inputPris = existingLejlighed.Price.ToString();
+
+            // Validate inputs
+            float sengeAntal;
+            if (!float.TryParse(inputSengeAntal, out sengeAntal) || sengeAntal <= 0)
+            {
+                Console.WriteLine("Ugyldigt Senge Antal");
+                continue; // Continue the loop if input is invalid
+            }
+
+            float kvalitet;
+            if (!float.TryParse(inputKvalitet, out kvalitet) || kvalitet <= 0)
+            {
+                Console.WriteLine("Ugyldig Kvalitet");
+                continue; // Continue the loop if input is invalid
+            }
+
+            float pris;
+            if (!float.TryParse(inputPris, out pris) || pris <= 0)
+            {
+                Console.WriteLine("Ugyldig Pris");
+                continue; // Continue the loop if input is invalid
+            }
+
+            // Create the updated object
+            Lejlheder updatedLejlighed = new Lejlheder(sengeAntal, kvalitet, pris);
+
+            // Update in the database
+            editFromDatabase.UpdateLejlighedInDatabase(lejlighedId, updatedLejlighed);
+            Console.WriteLine("Lejlighed er blevet opdateret.");
+
+            Console.Write("Pres KEY to Continue: ");
+            Console.ReadKey();
         }
-
-        // Prompt for new values
-        Console.WriteLine($"Nuvarande Senge Antal: {existingLejlighed.Senge}. Indtast nyt Senge Antal: ");
-        string inputSengeAntal = Console.ReadLine();
-        if (string.IsNullOrEmpty(inputSengeAntal)) inputSengeAntal = existingLejlighed.Senge.ToString();
-
-        Console.WriteLine($"Nuvarande Kvalitet: {existingLejlighed.Kvalitet}. Indtast ny Kvalitet: ");
-        string inputKvalitet = Console.ReadLine();
-        if (string.IsNullOrEmpty(inputKvalitet)) inputKvalitet = existingLejlighed.Kvalitet.ToString();
-
-        Console.WriteLine($"Nuvarande Pris: {existingLejlighed.Price}. Indtast ny Pris: ");
-        string inputPris = Console.ReadLine();
-        if (string.IsNullOrEmpty(inputPris)) inputPris = existingLejlighed.Price.ToString();
-
-        // Validate inputs
-        float sengeAntal;
-        if (!float.TryParse(inputSengeAntal, out sengeAntal) || sengeAntal <= 0)
-        {
-            Console.WriteLine("Ugyldigt Senge Antal");
-            return;
-        }
-
-        float kvalitet;
-        if (!float.TryParse(inputKvalitet, out kvalitet) || kvalitet <= 0)
-        {
-            Console.WriteLine("Ugyldig Kvalitet");
-            return;
-        }
-
-        float pris;
-        if (!float.TryParse(inputPris, out pris) || pris <= 0)
-        {
-            Console.WriteLine("Ugyldig Pris");
-            return;
-        }
-
-        // Create the updated object
-        Lejlheder updatedLejlighed = new Lejlheder(sengeAntal, kvalitet, pris);
-
-        // Update in the database
-        editFromDatabase.UpdateLejlighedInDatabase(lejlighedId, updatedLejlighed);
     }
 }

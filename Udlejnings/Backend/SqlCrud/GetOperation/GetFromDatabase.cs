@@ -57,7 +57,7 @@ public class GetFromDatabase
         {
             connection.Open();
 
-            string query = "SELECT ID,SengeAntal, Kvalitet, Pris FROM Sommerhuse";
+            string query = "SELECT SengeAntal, Kvalitet, Pris FROM Sommerhuse";
 
             using (SqlCommand command = new SqlCommand(query, connection))
             using (SqlDataReader reader = command.ExecuteReader())
@@ -67,7 +67,6 @@ public class GetFromDatabase
 
                     Sommerhuse sommerhus = new Sommerhuse
                     {
-                        Id = reader.GetInt32(0),
                         Senge = (float)reader.GetDouble(0),         // Convert from double to float explicitly
                         Kvalitet = (float)reader.GetDouble(1),      // Convert from double to float explicitly
                         Price = (float)reader.GetDouble(2)           // Pris is a float
@@ -81,7 +80,7 @@ public class GetFromDatabase
         Console.WriteLine("Sommerhuse i databasen:");
         foreach (var sommerhus in SommerhusList)
         {
-            Console.WriteLine($"Id {sommerhus.Id}, Senge: {sommerhus.Senge}, Kvalitet: {sommerhus.Kvalitet}, Pris: {sommerhus.Price}");
+            Console.WriteLine($"Senge: {sommerhus.Senge}, Kvalitet: {sommerhus.Kvalitet}, Pris: {sommerhus.Price}");
         }
     }
     public void FetchOmråderFromDatabase()
