@@ -6,6 +6,8 @@ using Udlejnings.Models;
 using Microsoft.Data.SqlClient;  // Use this namespace instead
 using System.Security.Cryptography;
 using System.Text;
+using System.Data;
+using Udlejnings.Backend.MenuDisplayer;
 
 namespace Udlejnings.Backend.BrugerOprettelse
 {
@@ -18,18 +20,16 @@ namespace Udlejnings.Backend.BrugerOprettelse
             Console.Write("Input Fornavn: ");
             string Fornavn = Console.ReadLine();
 
-            Console.WriteLine("");
-
+            
             Console.Write("Input Efternavn: ");
             string Efternavn = Console.ReadLine();
 
-            Console.WriteLine("");
 
             Console.Write("Input Adgangskode: ");
             string Adgangskode = Console.ReadLine();
 
             // Ask if the user is an admin
-            Console.WriteLine("Er du admin? (ja/nej): ");
+            Console.Write("Er du admin? (ja/nej): ");
             string roleInput = Console.ReadLine().ToLower();
             string Role = roleInput == "ja" ? "admin" : "user";
 
@@ -44,6 +44,7 @@ namespace Udlejnings.Backend.BrugerOprettelse
         // Method to save the user to the database
         private void SaveUserToDatabase(string Fornavn, string Efternavn, string Adgangskode, string Salt, string Role)
         {
+            Brugermenu brugermenu = new Brugermenu();
             string connectionString = "Data Source=GH\\MSSQLSERVER01;Initial Catalog=UdlejningsDatabase;Integrated Security=True;Trust Server Certificate=True";
 
             using (SqlConnection connection = new SqlConnection(connectionString))
@@ -65,6 +66,16 @@ namespace Udlejnings.Backend.BrugerOprettelse
             }
 
             Console.WriteLine("User created and saved to the database successfully.");
+
+            if (Role.Equals("admin", StringComparison.OrdinalIgnoreCase))
+            {
+                brugermenu.AdminOperationManager();
+            }
+            else
+            {
+                brugermenu.BrugerOperationManager();
+                    
+            }
 
         }
         private (string hashedPassword, string salt) HashPassword(string password)

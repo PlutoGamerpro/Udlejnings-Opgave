@@ -86,6 +86,9 @@ CREATE TABLE CombineTable(
     CONSTRAINT Sommerhuse_FK_KEY FOREIGN KEY (SommerhuseID) REFERENCES Sommerhuse(ID)
 );
 
+
+
+
 INSERT INTO Prisseasoner (Prisseasoner)
 VALUES
 ('Super'),

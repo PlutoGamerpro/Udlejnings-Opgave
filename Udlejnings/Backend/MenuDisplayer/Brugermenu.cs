@@ -9,11 +9,11 @@ using Udlejnings.Backend.SqlCrud.GetOperation;
 namespace Udlejnings.Backend.MenuDisplayer
 {
 
-    
+
 
     public class Brugermenu
     {
-       
+
 
 
         // Class content goes here if needed.
@@ -34,12 +34,11 @@ namespace Udlejnings.Backend.MenuDisplayer
             BrugerLogin.BrugerLogin brugerlogin = new BrugerLogin.BrugerLogin();
             GetFromDatabase getFromDatabase = new GetFromDatabase();
 
-         
-
-
             while (true)
-            { // program on loop-- never need to be false... 
+            { // program on loop-- never need to be false...
+               
                 DisplayUserMenu();
+                Console.Write("Vælg Mulighed 1,2,3,4 : ");
                 // if userenter one of the options below then exits the loop 
                 string BrugerInput = Console.ReadLine();
                 switch (BrugerInput)
@@ -63,19 +62,19 @@ namespace Udlejnings.Backend.MenuDisplayer
             Console.WriteLine("1. Opret Sommerhus");
             Console.WriteLine("2. Rediger Sommerhus");
 
-            Console.WriteLine("");
-
+            
             Console.WriteLine("3. Opret Lejlhed");
             Console.WriteLine("4. Rediger Lejlhed");
 
             Console.WriteLine("5. Se Ledlige lejlheder / sommerhuse ");
             Console.WriteLine("6. Tilbage til hovedmenu");
+            Console.WriteLine("7. Afslut program");
         }
 
         public void AdminOperationManager()
         {
-           
-          
+
+
             GetFromDatabase getFromDatabase = new GetFromDatabase();
 
             Edit_Sommerhus_Lejlhed edit_Sommerhus_Lejlhed = new Edit_Sommerhus_Lejlhed();
@@ -83,9 +82,12 @@ namespace Udlejnings.Backend.MenuDisplayer
             Oprettelse_Af_Hus_Leligheder oprettelse_Af_Hus_Leligheder = new Oprettelse_Af_Hus_Leligheder();
 
             while (true)
-            { // program on loop-- never need to be false... 
+            { // program on loop-- never need to be false...
+                
                 AdminLoggedIn();
+                Console.Write("Vælg Mulighed 1,2,3,4,5,6 : ");
                 // if userenter one of the options below then exits the loop 
+
                 string BrugerInput = Console.ReadLine();
                 switch (BrugerInput)
                 {
@@ -94,7 +96,8 @@ namespace Udlejnings.Backend.MenuDisplayer
                     case "3": oprettelse_Af_Hus_Leligheder.Oprettelse_Af_Lelighed(); Console.WriteLine("Opret Lejlhed"); break;
                     case "4": edit_Sommerhus_Lejlhed.EditLejlighed(); Console.WriteLine("Rediger Lejlhed"); break;
                     case "5": getFromDatabase.FetchLejlhederFromDatabase(); getFromDatabase.FetchSommerhuseFromDatabase(); Console.WriteLine("Se Ledige lejlheder / sommerhuse"); break;
-                    case "6": Console.WriteLine("Afslutet Program "); Environment.Exit(0); break;
+                    case "6": Console.WriteLine("Tilbage til hovedmenu"); break;
+                    case "7": Console.WriteLine("Afslutet Program "); Environment.Exit(0); break;
 
                     default: Console.WriteLine("Vælg en af overstående muligheder"); break;
 
@@ -110,22 +113,25 @@ namespace Udlejnings.Backend.MenuDisplayer
             // stop lån 
             Console.WriteLine("2. Lån Lejlhed");
             Console.WriteLine("3. Gå tilbage til hovedmenu");
+            Console.WriteLine("4. Afslut program");
         }
 
         public void BrugerOperationManager()
         {
 
             while (true)
-            { // program on loop-- never need to be false... 
+            { // program on loop-- never need to be false...
+                Console.Write("Vælg Mulighed 1,2,3 : ");
                 BrugerLoggedIn();
                 // if userenter one of the options below then exits the loop 
+
                 string BrugerInput = Console.ReadLine();
                 switch (BrugerInput)
                 {
                     case "1": Console.WriteLine("Lån Sommerhus"); break;
                     case "2": Console.WriteLine("Lån Lejlhed"); break;
                     case "3": Console.WriteLine("Gå tilbage til hovedmenu"); break;
-
+                    case "4": Console.WriteLine("Afslut program"); break;
                     default: Console.WriteLine("Vælg en af overstående muligheder"); break;
 
                 }
