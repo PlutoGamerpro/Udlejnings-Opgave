@@ -213,8 +213,12 @@ public class GetFromDatabase
     // Confirm a Booking
     public void ConfirmBooking(InsertToDatabase bookingSystem)
     {
-        Console.WriteLine("Enter the Booking ID to confirm:");
+        GetFromDatabase getFromDatabase = new GetFromDatabase();
+        Console.Write("Enter the Booking ID to confirm: ");
         int bookingId = Convert.ToInt32(Console.ReadLine());
+
+        GetPendingBookings();
+        ShowPendingBookings(getFromDatabase);
 
         // Confirm the booking
         bookingSystem.ConfirmBooking(bookingId);

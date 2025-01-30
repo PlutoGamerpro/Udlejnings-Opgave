@@ -57,15 +57,15 @@ public class Oprettelse_Af_Hus_Leligheder
         // sender lav logik så bestemt uger har super pris lige meget hvad
         while (!PrisKlasseInputValid)
         {
-            Console.Write("Vælg pris klassen : Super, Høj, Mellem, Lav: ");
-            VælgPrisKlasse = Console.ReadLine();
+            Console.Write("Vælg pris klassen : Super, Hoj, Mellem, Lav: ");
+            VælgPrisKlasse = Console.ReadLine().ToLower();
 
             if (prisseasoner.PriceMapping.ContainsKey(VælgPrisKlasse))
             {
                 price = prisseasoner.PriceMapping[VælgPrisKlasse];
                 PrisKlasseInputValid = true;
             }
-            else { Console.WriteLine("Invalid input Super, Høj, Mellem, Lav"); }
+            else { Console.WriteLine("Invalid input Super, Hoj, Mellem, Lav"); }
         }
         Console.WriteLine($"Du har valgt pris klasse: {VælgPrisKlasse}, og prisen er: {price} kr.");
 
@@ -118,15 +118,15 @@ public class Oprettelse_Af_Hus_Leligheder
         // sender lav logik så bestemt uger har super pris lige meget hvad
         while (!PrisKlasseInputValid)
         {
-            Console.Write("Vælg pris klassen : Super, Høj, Mellem, Lav: ");
-            VælgPrisKlasse = Console.ReadLine();
+            Console.Write("Vælg pris klassen : Super, Hoj, Mellem, Lav: ");
+            VælgPrisKlasse = Console.ReadLine().ToLower();
 
             if (prisseasoner.PriceMapping.ContainsKey(VælgPrisKlasse))
             {
                 price = prisseasoner.PriceMapping[VælgPrisKlasse];
                 PrisKlasseInputValid = true;
             }
-            else { Console.WriteLine("Invalid input Super, Høj, Mellem, Lav"); }
+            else { Console.WriteLine("Invalid input Super, Hoj, Mellem, Lav"); }
         }
         Console.WriteLine($"Du har valgt pris klasse: {VælgPrisKlasse}, og prisen er: {price} kr.");
 

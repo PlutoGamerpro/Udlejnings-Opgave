@@ -48,13 +48,15 @@ public class Booking_Sommerhus_Lejlhed
             return;
         }
 
-        Console.WriteLine("Enter Start Date (yyyy-MM-dd):");
+        Console.Write("Enter Start Date (yyyy-MM-dd): ");
         DateTime startDate = DateTime.Parse(Console.ReadLine());
 
-        Console.WriteLine("Enter End Date (yyyy-MM-dd):");
+        Console.Write("Enter End Date (yyyy-MM-dd):");
         DateTime endDate = DateTime.Parse(Console.ReadLine());
 
-        Console.WriteLine("Enter Price:");
+
+        // error ...
+        Console.Write("Enter Price :");
         decimal price = Convert.ToDecimal(Console.ReadLine());
 
         InsertToDatabase insertToDatabase = new InsertToDatabase();

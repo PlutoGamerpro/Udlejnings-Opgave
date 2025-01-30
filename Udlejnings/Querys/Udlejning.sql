@@ -107,10 +107,12 @@ CREATE TABLE CombineTable(
 
 
 
-
 INSERT INTO Prisseasoner (Prisseasoner)
 VALUES
-('Super'),
-('Høj'),
-('Mellem'),
-('Lav');
+('super'),
+('hoj'),
+('mellem'),
+('lav');
+
+
+

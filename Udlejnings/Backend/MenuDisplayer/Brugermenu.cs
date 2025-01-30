@@ -144,8 +144,8 @@ namespace Udlejnings.Backend.MenuDisplayer
                 switch (BrugerInput)
                 {
                     case "1": booking_Sommerhus_Lejlhed.CreateBookingMenu(currentUser); Console.WriteLine("Lån Sommerhus / Lån Lejlhed"); break;
-                    case "3": brugermenu.OperationManager();  Console.WriteLine("Gå tilbage til hovedmenu"); break;
-                    case "4": Environment.Exit(0); Console.WriteLine("Afslut program"); break;
+                    case "2": brugermenu.OperationManager();  Console.WriteLine("Gå tilbage til hovedmenu"); break;
+                    case "3": Environment.Exit(0); Console.WriteLine("Afslut program"); break;
                     default: Console.WriteLine("Vælg en af overstående muligheder"); break;
 
                 }
