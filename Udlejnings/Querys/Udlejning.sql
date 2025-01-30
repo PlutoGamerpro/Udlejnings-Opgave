@@ -86,6 +86,8 @@ CONSTRAINT Udlejningskonsulent_PK_KEY PRIMARY KEY (ID),
 
 
 
+
+
 CREATE TABLE Områder(
 ID INT IDENTITY(1,1),
 OmrådeNavn VARCHAR(30),
@@ -93,7 +95,7 @@ OmrådeNavn VARCHAR(30),
 CONSTRAINT Områder_PK_KEY PRIMARY KEY (ID),
 );
 
-
+ALTER TABLE Bookings ADD OmrådeNavn VARCHAR(255);
 
 
 CREATE TABLE CombineTable(
