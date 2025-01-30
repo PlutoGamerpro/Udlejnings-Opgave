@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace Udlejnings.Backend.PasswordHasher;
-
+/*
 public static class PasswordHasher
 {
     public static (string hashedPassword, string salt) HashPassword(string password)
@@ -38,4 +38,4 @@ public static class PasswordHasher
         var (hashedPassword, _) = HashPassword(enteredPassword + storedSalt);
         return hashedPassword == storedHashedPassword;
     }
-}
+}*/

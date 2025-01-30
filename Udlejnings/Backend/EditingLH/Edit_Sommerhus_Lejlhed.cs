@@ -62,6 +62,7 @@ public class Edit_Sommerhus_Lejlhed
 
     public void EditSommerhus()
     {
+
         EditFromDatabase editFromDatabase = new EditFromDatabase();
         GetFromDatabase getFromDatabase = new GetFromDatabase();
         Brugermenu brugermenu = new Brugermenu();
@@ -85,7 +86,7 @@ public class Edit_Sommerhus_Lejlhed
             if (!int.TryParse(userInput, out sommerhusId))
             {
                 Console.WriteLine("Ugyldigt ID. Prøv igen.");
-                continue;
+                continue; // Continue the loop if the input is not a valid number
             }
 
             // Fetch current values from the database 
@@ -97,43 +98,89 @@ public class Edit_Sommerhus_Lejlhed
                 continue; // Continue the loop if no sommerhus found
             }
 
-            // Prompt for new values, default to the current ones
-            Console.Write($"Nuvarande Senge Antal: {existingSommerhus.Senge}. Indtast nyt Senge Antal: ");
-            string inputSengeAntal = Console.ReadLine();
-            if (string.IsNullOrEmpty(inputSengeAntal)) inputSengeAntal = existingSommerhus.Senge.ToString();
-
-            Console.Write($"Nuvarande Kvalitet: {existingSommerhus.Kvalitet}. Indtast ny Kvalitet: ");
-            string inputKvalitet = Console.ReadLine();
-            if (string.IsNullOrEmpty(inputKvalitet)) inputKvalitet = existingSommerhus.Kvalitet.ToString();
-
-            Console.Write($"Nuvarande Pris: {existingSommerhus.Price}. Indtast ny Pris: ");
-            string inputPris = Console.ReadLine();
-            if (string.IsNullOrEmpty(inputPris)) inputPris = existingSommerhus.Price.ToString();
-
-            // Validate inputs
+            // Validate input for Senge Antal
             float sengeAntal;
-            if (!float.TryParse(inputSengeAntal, out sengeAntal) || sengeAntal <= 0)
+            while (true)
             {
-                Console.WriteLine("Ugyldigt Senge Antal");
-                continue; // Continue the loop if input is invalid
+                Console.Write($"Nuvarande Senge Antal: {existingSommerhus.Senge}. Indtast nyt Senge Antal (max 10): ");
+                string inputSengeAntal = Console.ReadLine();
+                if (string.IsNullOrEmpty(inputSengeAntal)) inputSengeAntal = existingSommerhus.Senge.ToString();
+
+                if (float.TryParse(inputSengeAntal, out sengeAntal) && sengeAntal > 0 && sengeAntal <= 10)
+                {
+                    break; // Exit the loop when input is valid
+                }
+                else
+                {
+                    Console.WriteLine("Ugyldigt Senge Antal. Prøv igen (Senge skal være mellem 1 og 10).");
+                }
             }
 
+            // Validate input for Kvalitet
             float kvalitet;
-            if (!float.TryParse(inputKvalitet, out kvalitet) || kvalitet <= 0)
+            while (true)
             {
-                Console.WriteLine("Ugyldig Kvalitet");
-                continue; // Continue the loop if input is invalid
+                Console.Write($"Nuvarande Kvalitet: {existingSommerhus.Kvalitet}. Indtast ny Kvalitet (max 10): ");
+                string inputKvalitet = Console.ReadLine();
+                if (string.IsNullOrEmpty(inputKvalitet)) inputKvalitet = existingSommerhus.Kvalitet.ToString();
+
+                if (float.TryParse(inputKvalitet, out kvalitet) && kvalitet > 0 && kvalitet <= 10)
+                {
+                    break; // Exit the loop when input is valid
+                }
+                else
+                {
+                    Console.WriteLine("Ugyldig Kvalitet. Prøv igen (Kvalitet skal være mellem 1 og 10).");
+                }
             }
 
+            // Validate input for Pris
             float pris;
-            if (!float.TryParse(inputPris, out pris) || pris <= 0)
+            while (true)
             {
-                Console.WriteLine("Ugyldig Pris");
-                continue; // Continue the loop if input is invalid
+                Console.Write($"Nuvarande Pris: {existingSommerhus.Price}. Indtast ny Pris: ");
+                string inputPris = Console.ReadLine();
+                if (string.IsNullOrEmpty(inputPris)) inputPris = existingSommerhus.Price.ToString();
+
+                if (float.TryParse(inputPris, out pris) && pris > 0)
+                {
+                    break; // Exit the loop when input is valid
+                }
+                else
+                {
+                    Console.WriteLine("Ugyldig Pris. Prøv igen.");
+                }
             }
 
-            // Create the updated object
-            Sommerhuse updatedSommerhus = new Sommerhuse(sengeAntal, kvalitet, pris);
+            // Display available areas and validate input for Område ID
+            int områdeId = -1;
+            while (true)
+            {
+                List<Områder> availableAreas = getFromDatabase.FetchAvailableAreas(); // Fetch available areas
+                Console.WriteLine("Vælg nyt Område:");
+
+                for (int i = 0; i < availableAreas.Count; i++)
+                {
+                    Console.WriteLine($"{i + 1}: {availableAreas[i].OmrådeNavn}");
+                }
+
+                Console.Write("Indtast Område ID: ");
+                string inputOmrådeId = Console.ReadLine();
+
+                if (int.TryParse(inputOmrådeId, out områdeId) && områdeId >= 1 && områdeId <= availableAreas.Count)
+                {
+                    string områdeNavn = availableAreas[områdeId - 1].OmrådeNavn;
+                    Console.WriteLine($"Område valgt: {områdeNavn}");
+                    break; // Exit the loop when input is valid
+                }
+                else
+                {
+                    Console.WriteLine("Ugyldigt Område ID. Prøv igen.");
+                }
+            }
+
+            // Create the updated object with OmrådeNavn
+            Sommerhuse updatedSommerhus = new Sommerhuse(sengeAntal, kvalitet, pris, områdeId, getFromDatabase.FetchOmrådeNameById(områdeId));
 
             // Update in the database
             editFromDatabase.UpdateSommerhusInDatabase(sommerhusId, updatedSommerhus);
@@ -180,48 +227,93 @@ public class Edit_Sommerhus_Lejlhed
                 continue; // Continue the loop if no lejlighed found
             }
 
-            // Prompt for new values, default to the current ones
-            Console.Write($"Nuvarande Senge Antal: {existingLejlighed.Senge}. Indtast nyt Senge Antal: ");
-            string inputSengeAntal = Console.ReadLine();
-            if (string.IsNullOrEmpty(inputSengeAntal)) inputSengeAntal = existingLejlighed.Senge.ToString();
-
-            Console.Write($"Nuvarande Kvalitet: {existingLejlighed.Kvalitet}. Indtast ny Kvalitet: ");
-            string inputKvalitet = Console.ReadLine();
-            if (string.IsNullOrEmpty(inputKvalitet)) inputKvalitet = existingLejlighed.Kvalitet.ToString();
-
-            Console.Write($"Nuvarande Pris: {existingLejlighed.Price}. Indtast ny Pris: ");
-            string inputPris = Console.ReadLine();
-            if (string.IsNullOrEmpty(inputPris)) inputPris = existingLejlighed.Price.ToString();
-
-            // Validate inputs
+            // Validate input for Senge Antal
             float sengeAntal;
-            if (!float.TryParse(inputSengeAntal, out sengeAntal) || sengeAntal <= 0)
+            while (true)
             {
-                Console.WriteLine("Ugyldigt Senge Antal");
-                continue; // Continue the loop if input is invalid
+                Console.Write($"Nuvarande Senge Antal: {existingLejlighed.Senge}. Indtast nyt Senge Antal (max 10): ");
+                string inputSengeAntal = Console.ReadLine();
+                if (string.IsNullOrEmpty(inputSengeAntal)) inputSengeAntal = existingLejlighed.Senge.ToString();
+
+                if (float.TryParse(inputSengeAntal, out sengeAntal) && sengeAntal > 0 && sengeAntal <= 10)
+                {
+                    break; // Exit the loop when input is valid
+                }
+                else
+                {
+                    Console.WriteLine("Ugyldigt Senge Antal. Prøv igen (Senge skal være mellem 1 og 10).");
+                }
             }
 
+            // Validate input for Kvalitet
             float kvalitet;
-            if (!float.TryParse(inputKvalitet, out kvalitet) || kvalitet <= 0)
+            while (true)
             {
-                Console.WriteLine("Ugyldig Kvalitet");
-                continue; // Continue the loop if input is invalid
+                Console.Write($"Nuvarande Kvalitet: {existingLejlighed.Kvalitet}. Indtast ny Kvalitet (max 10): ");
+                string inputKvalitet = Console.ReadLine();
+                if (string.IsNullOrEmpty(inputKvalitet)) inputKvalitet = existingLejlighed.Kvalitet.ToString();
+
+                if (float.TryParse(inputKvalitet, out kvalitet) && kvalitet > 0 && kvalitet <= 10)
+                {
+                    break; // Exit the loop when input is valid
+                }
+                else
+                {
+                    Console.WriteLine("Ugyldig Kvalitet. Prøv igen (Kvalitet skal være mellem 1 og 10).");
+                }
             }
 
+            // Validate input for Pris
             float pris;
-            if (!float.TryParse(inputPris, out pris) || pris <= 0)
+            while (true)
             {
-                Console.WriteLine("Ugyldig Pris");
-                continue; // Continue the loop if input is invalid
+                Console.Write($"Nuvarande Pris: {existingLejlighed.Price}. Indtast ny Pris: ");
+                string inputPris = Console.ReadLine();
+                if (string.IsNullOrEmpty(inputPris)) inputPris = existingLejlighed.Price.ToString();
+
+                if (float.TryParse(inputPris, out pris) && pris > 0)
+                {
+                    break; // Exit the loop when input is valid
+                }
+                else
+                {
+                    Console.WriteLine("Ugyldig Pris. Prøv igen.");
+                }
             }
 
-            // Create the updated object
-            Lejlheder updatedLejlighed = new Lejlheder(sengeAntal, kvalitet, pris);
+            // Display available areas and validate input for Område ID
+            int områdeId = -1;
+            while (true)
+            {
+                List<Områder> availableAreas = getFromDatabase.FetchAvailableAreas(); // Fetch available areas
+                Console.WriteLine("Vælg nyt Område:");
+
+                for (int i = 0; i < availableAreas.Count; i++)
+                {
+                    Console.WriteLine($"{i + 1}: {availableAreas[i].OmrådeNavn}");
+                }
+
+                Console.Write("Indtast Område ID: ");
+                string inputOmrådeId = Console.ReadLine();
+
+                if (int.TryParse(inputOmrådeId, out områdeId) && områdeId >= 1 && områdeId <= availableAreas.Count)
+                {
+                    string områdeNavn = availableAreas[områdeId - 1].OmrådeNavn;
+                    Console.WriteLine($"Område valgt: {områdeNavn}");
+                    break; // Exit the loop when input is valid
+                }
+                else
+                {
+                    Console.WriteLine("Ugyldigt Område ID. Prøv igen.");
+                }
+            }
+
+            // Create the updated object with OmrådeNavn
+            Lejlheder updatedLejlighed = new Lejlheder(sengeAntal, kvalitet, pris, områdeId, getFromDatabase.FetchOmrådeNameById(områdeId));
 
             // Update in the database
             editFromDatabase.UpdateLejlighedInDatabase(lejlighedId, updatedLejlighed);
             Console.WriteLine("Lejlighed er blevet opdateret.");
-
             Console.Write("Pres KEY to Continue: ");
             Console.ReadKey();
         }

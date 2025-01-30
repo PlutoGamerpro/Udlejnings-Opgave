@@ -19,7 +19,9 @@ public class InsertToDatabase
         {
             connection.Open();
 
-            string query = "INSERT INTO Lejlheder (SengeAntal, Kvalitet, Pris) VALUES (@SengeAntal, @Kvalitet, @Pris)";
+            // Modified query to include both OmrådeId and OmrådeNavn
+            string query = "INSERT INTO Lejlheder (SengeAntal, Kvalitet, Pris, OmrådeId, OmrådeNavn) " +
+                           "VALUES (@SengeAntal, @Kvalitet, @Pris, @OmrådeId, @OmrådeNavn)";
 
             using (SqlCommand command = new SqlCommand(query, connection))
             {
@@ -27,6 +29,8 @@ public class InsertToDatabase
                 command.Parameters.AddWithValue("@SengeAntal", lejlheder.Senge);
                 command.Parameters.AddWithValue("@Kvalitet", lejlheder.Kvalitet);
                 command.Parameters.AddWithValue("@Pris", lejlheder.Price);
+                command.Parameters.AddWithValue("@OmrådeId", lejlheder.OmrådeId);  // OmrådeId parameter
+                command.Parameters.AddWithValue("@OmrådeNavn", lejlheder.OmrådeNavn);  // OmrådeNavn parameter
 
                 // Execute the query
                 command.ExecuteNonQuery();
@@ -45,7 +49,9 @@ public class InsertToDatabase
         {
             connection.Open();
 
-            string query = "INSERT INTO Sommerhuse (SengeAntal, Kvalitet, Pris) VALUES (@SengeAntal, @Kvalitet, @Pris)";
+            // Modified query to include both OmrådeId and OmrådeNavn
+            string query = "INSERT INTO Sommerhuse (SengeAntal, Kvalitet, Pris, OmrådeId, OmrådeNavn) " +
+                           "VALUES (@SengeAntal, @Kvalitet, @Pris, @OmrådeId, @OmrådeNavn)";
 
             using (SqlCommand command = new SqlCommand(query, connection))
             {
@@ -53,6 +59,8 @@ public class InsertToDatabase
                 command.Parameters.AddWithValue("@SengeAntal", sommerhuse.Senge);
                 command.Parameters.AddWithValue("@Kvalitet", sommerhuse.Kvalitet);
                 command.Parameters.AddWithValue("@Pris", sommerhuse.Price);
+                command.Parameters.AddWithValue("@OmrådeId", sommerhuse.OmrådeId);  // OmrådeId parameter
+                command.Parameters.AddWithValue("@OmrådeNavn", sommerhuse.OmrådeNavn);  // OmrådeNavn parameter
 
                 // Execute the query
                 command.ExecuteNonQuery();
@@ -166,17 +174,45 @@ public class InsertToDatabase
         {
             connection.Open();
 
-            // Construct SQL query based on whether the user is booking a Sommerhus or a Lejlighed
             string query = string.Empty;
+            string områdeNavn = string.Empty;  // To store the area name
 
-
+            // Fetch the OmrådeNavn based on whether the user is booking a Sommerhus or Lejlighed
             if (sommerhusId.HasValue)
             {
-                query = "INSERT INTO Bookings (BrugerId, SommerhusId, StartDate, EndDate, Price) VALUES (@BrugerId, @SommerhusId, @StartDate, @EndDate, @Price)";
+                // Query to fetch the OmrådeNavn for the Sommerhus
+                string fetchOmrådeQuery = "SELECT OmrådeNavn FROM Sommerhuse WHERE Id = @SommerhusId";
+                using (SqlCommand fetchOmrådeCommand = new SqlCommand(fetchOmrådeQuery, connection))
+                {
+                    fetchOmrådeCommand.Parameters.AddWithValue("@SommerhusId", sommerhusId.Value);
+                    using (SqlDataReader reader = fetchOmrådeCommand.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            områdeNavn = reader.GetString(0);  // Assuming OmrådeNavn is a string
+                        }
+                    }
+                }
+
+                query = "INSERT INTO Bookings (BrugerId, SommerhusId, StartDate, EndDate, Price, OmrådeNavn) VALUES (@BrugerId, @SommerhusId, @StartDate, @EndDate, @Price, @OmrådeNavn)";
             }
             else if (lejlighedId.HasValue)
             {
-                query = "INSERT INTO Bookings (BrugerId, LejlighedId, StartDate, EndDate, Price) VALUES (@BrugerId, @LejlighedId, @StartDate, @EndDate, @Price)";
+                // Query to fetch the OmrådeNavn for the Lejlighed
+                string fetchOmrådeQuery = "SELECT OmrådeNavn FROM Lejlheder WHERE Id = @LejlighedId";
+                using (SqlCommand fetchOmrådeCommand = new SqlCommand(fetchOmrådeQuery, connection))
+                {
+                    fetchOmrådeCommand.Parameters.AddWithValue("@LejlighedId", lejlighedId.Value);
+                    using (SqlDataReader reader = fetchOmrådeCommand.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            områdeNavn = reader.GetString(0);  // Assuming OmrådeNavn is a string
+                        }
+                    }
+                }
+
+                query = "INSERT INTO Bookings (BrugerId, LejlighedId, StartDate, EndDate, Price, OmrådeNavn) VALUES (@BrugerId, @LejlighedId, @StartDate, @EndDate, @Price, @OmrådeNavn)";
             }
 
             // Check if a valid query was built
@@ -193,6 +229,7 @@ public class InsertToDatabase
                 command.Parameters.AddWithValue("@StartDate", startDate);
                 command.Parameters.AddWithValue("@EndDate", endDate);
                 command.Parameters.AddWithValue("@Price", price);
+                command.Parameters.AddWithValue("@OmrådeNavn", områdeNavn);  // Insert the area name
 
                 // Add parameters for Sommerhus or Lejlighed depending on what was chosen
                 if (sommerhusId.HasValue)
@@ -209,7 +246,6 @@ public class InsertToDatabase
                 Console.WriteLine("Booking successfully created.");
             }
         }
-
     }
     /*
     public void ConfirmBooking(int bookingId)

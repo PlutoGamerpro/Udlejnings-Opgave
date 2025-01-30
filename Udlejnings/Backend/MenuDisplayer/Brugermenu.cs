@@ -46,7 +46,7 @@ namespace Udlejnings.Backend.MenuDisplayer
                 {
                     case "1": brugerOprettelse.CreateUser(); Console.WriteLine("OpretBruger"); break;
                     case "2": brugerlogin.CheckLoginInfo(); Console.WriteLine("Login ind"); break;
-                    case "3":  getFromDatabase.FetchPendingBookings(); Console.WriteLine("Se Ledlige lejlheder / sommerhuse"); break;
+                    case "3": getFromDatabase.FetchLejlhederFromDatabase(); getFromDatabase.FetchSommerhuseFromDatabase(); Console.WriteLine("Se Ledlige lejlheder / sommerhuse"); break;
                     case "4": Console.WriteLine("Afslutet Program"); Environment.Exit(0); break;
 
                     default: Console.WriteLine("Vælg en af overstående muligheder"); break;
@@ -101,7 +101,7 @@ namespace Udlejnings.Backend.MenuDisplayer
                 {
                     case "1": oprettelse_Af_Hus_Leligheder.Oprettelse_Af_Sommerhus(); Console.WriteLine("Opret Sommerhus"); break;
                     case "2": edit_Sommerhus_Lejlhed.EditOrDeleteSommerhus(); Console.WriteLine("Rediger Sommerhus / Delete"); break;
-                    case "3": oprettelse_Af_Hus_Leligheder.Oprettelse_Af_Lelighed(); Console.WriteLine("Opret Lejlhed"); break;
+                    case "3": oprettelse_Af_Hus_Leligheder.Oprettelse_Af_Lejlighed(); Console.WriteLine("Opret Lejlhed"); break;
                     case "4": edit_Sommerhus_Lejlhed.EditOrDeleteLejlhed(); Console.WriteLine("Rediger Lejlhed / Delete"); break;
                     case "5": getFromDatabase.FetchLejlhederFromDatabase(); getFromDatabase.FetchSommerhuseFromDatabase(); break;
                    // case "5": getFromDatabase.FetchLejlhederFromDatabase(); getFromDatabase.FetchSommerhuseFromDatabase(); Console.WriteLine("Se Ledige lejlheder / sommerhuse"); break;

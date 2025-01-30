@@ -11,20 +11,22 @@ public class Sommerhuse
     public static int NextId = 1;
     public float Senge { get; set; }
     public float Kvalitet { get; set; }
-
     public float Price { get; set; }
-
+    public int OmrådeId { get; set;}
+    public string OmrådeNavn { get; set; }
 
     // pris skal nok have sin egen klasse fordi den kan være 3 forskellige .... 
 
 
     public Sommerhuse() { }
-    public Sommerhuse(float senge, float kvalitet, float price)
+    public Sommerhuse(float senge, float kvalitet, float price, int områdeId, string områdenavn)
     {
         Id = NextId++;
         Senge = senge;
         Kvalitet = kvalitet;
         Price = price;
+        OmrådeId = områdeId;
+        OmrådeNavn = områdenavn;
 
     }
 }

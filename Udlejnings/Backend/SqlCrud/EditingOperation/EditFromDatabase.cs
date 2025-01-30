@@ -17,7 +17,13 @@ public class EditFromDatabase
         {
             connection.Open();
 
-            string query = "SELECT * FROM Sommerhuse WHERE Id = @Id";
+            // Modified query to join the Sommerhuse table with the Områder table and fetch OmrådeId and OmrådeNavn
+            string query = @"
+            SELECT s.SengeAntal, s.Kvalitet, s.Pris, s.OmrådeId, o.OmrådeNavn
+            FROM Sommerhuse s
+            JOIN Områder o ON s.OmrådeId = o.Id
+            WHERE s.Id = @Id";
+
             using (SqlCommand command = new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@Id", id);
@@ -26,10 +32,13 @@ public class EditFromDatabase
                 {
                     if (reader.Read())
                     {
+                        // Fetch data from the reader and return a new Sommerhuse object with both OmrådeId and OmrådeNavn
                         return new Sommerhuse(
                             Convert.ToSingle(reader["SengeAntal"]),  // Corrected to float
                             Convert.ToSingle(reader["Kvalitet"]),    // Corrected to float
-                             Convert.ToSingle(reader["Pris"])        // Assuming Pris is Decimal (or Convert.ToSingle for float)
+                            Convert.ToSingle(reader["Pris"]),        // Corrected to float
+                            Convert.ToInt32(reader["OmrådeId"]),     // OmrådeId (foreign key)
+                            reader["OmrådeNavn"].ToString()          // OmrådeNavn from the joined table
                         );
                     }
                 }
@@ -46,13 +55,15 @@ public class EditFromDatabase
         {
             connection.Open();
 
-            string query = "UPDATE Sommerhuse SET SengeAntal = @SengeAntal, Kvalitet = @Kvalitet, Pris = @Pris WHERE Id = @Id";
+            // Updated query to also update OmrådeId
+            string query = "UPDATE Sommerhuse SET SengeAntal = @SengeAntal, Kvalitet = @Kvalitet, Pris = @Pris, OmrådeId = @OmrådeId WHERE Id = @Id";
             using (SqlCommand command = new SqlCommand(query, connection))
             {
-                // Ensure you're passing float (or decimal for price) values to SQL
+                // Add parameters for the query
                 command.Parameters.AddWithValue("@SengeAntal", sommerhuse.Senge);
                 command.Parameters.AddWithValue("@Kvalitet", sommerhuse.Kvalitet);
-                command.Parameters.AddWithValue("@Pris", sommerhuse.Price);  // Assuming Price is float/decimal
+                command.Parameters.AddWithValue("@Pris", sommerhuse.Price);
+                command.Parameters.AddWithValue("@OmrådeId", sommerhuse.OmrådeId);  // Add OmrådeId to update
                 command.Parameters.AddWithValue("@Id", id);
 
                 command.ExecuteNonQuery();
@@ -63,16 +74,22 @@ public class EditFromDatabase
     }
 
 
-
     public Lejlheder FetchLejlighedFromDatabase(int id)
     {
         // Replace with actual database logic to fetch the Lejlighed by ID
         string connectionString = "Data Source=GH\\MSSQLSERVER01;Initial Catalog=UdlejningsDatabase;Integrated Security=True;Trust Server Certificate=True";
+
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
             connection.Open();
 
-            string query = "SELECT * FROM Lejlheder WHERE Id = @Id";
+            // Modify the query to also fetch the OmrådeId and OmrådeNavn by joining with the Områder table
+            string query = @"
+            SELECT l.SengeAntal, l.Kvalitet, l.Pris, l.OmrådeId, o.OmrådeNavn 
+            FROM Lejlheder l
+            JOIN Områder o ON l.OmrådeId = o.Id
+            WHERE l.Id = @Id";
+
             using (SqlCommand command = new SqlCommand(query, connection))
             {
                 command.Parameters.AddWithValue("@Id", id);
@@ -81,17 +98,51 @@ public class EditFromDatabase
                 {
                     if (reader.Read())
                     {
+                        // Fetch data from the reader and return a new Lejlheder object with both OmrådeId and OmrådeNavn
                         return new Lejlheder(
-                      Convert.ToSingle(reader["SengeAntal"]),  // Corrected to float
-                      Convert.ToSingle(reader["Kvalitet"]),    // Corrected to float
-                      Convert.ToSingle(reader["Pris"])         // Corrected to float
-                  );
+                            Convert.ToSingle(reader["SengeAntal"]),  // Corrected to float
+                            Convert.ToSingle(reader["Kvalitet"]),    // Corrected to float
+                            Convert.ToSingle(reader["Pris"]),        // Corrected to float
+                            Convert.ToInt32(reader["OmrådeId"]),     // OmrådeId (foreign key)
+                            reader["OmrådeNavn"].ToString()          // OmrådeNavn from the joined table
+                        );
                     }
                 }
             }
         }
         return null;
     }
+
+    /*
+        public Lejlheder FetchLejlighedFromDatabase(int id)
+        {
+            // Replace with actual database logic to fetch the Lejlighed by ID
+            string connectionString = "Data Source=GH\\MSSQLSERVER01;Initial Catalog=UdlejningsDatabase;Integrated Security=True;Trust Server Certificate=True";
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string query = "SELECT * FROM Lejlheder WHERE Id = @Id";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", id);
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Lejlheder(
+                          Convert.ToSingle(reader["SengeAntal"]),  // Corrected to float
+                          Convert.ToSingle(reader["Kvalitet"]),    // Corrected to float
+                          Convert.ToSingle(reader["Pris"])         // Corrected to float
+                      );
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        */
 
     public void UpdateLejlighedInDatabase(int id, Lejlheder lejlighed)
     {
@@ -101,12 +152,15 @@ public class EditFromDatabase
         {
             connection.Open();
 
-            string query = "UPDATE Lejlheder SET SengeAntal = @SengeAntal, Kvalitet = @Kvalitet, Pris = @Pris WHERE Id = @Id";
+            // Updated query to also update OmrådeId
+            string query = "UPDATE Lejlheder SET SengeAntal = @SengeAntal, Kvalitet = @Kvalitet, Pris = @Pris, OmrådeId = @OmrådeId WHERE Id = @Id";
             using (SqlCommand command = new SqlCommand(query, connection))
             {
+                // Adding parameters to the SQL query
                 command.Parameters.AddWithValue("@SengeAntal", lejlighed.Senge);
                 command.Parameters.AddWithValue("@Kvalitet", lejlighed.Kvalitet);
                 command.Parameters.AddWithValue("@Pris", lejlighed.Price);
+                command.Parameters.AddWithValue("@OmrådeId", lejlighed.OmrådeId);  // Add OmrådeId parameter
                 command.Parameters.AddWithValue("@Id", id);
 
                 command.ExecuteNonQuery();
