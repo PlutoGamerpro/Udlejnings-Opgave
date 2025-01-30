@@ -22,8 +22,12 @@ ID INT IDENTITY (1,1),
 SengeAntal FLOAT,
 Kvalitet FLOAT,
 Pris FLOAT,
+OmrådeNavn VARCHAR(30),
+OmrådeID INT,
 
 CONSTRAINT Sommerhuse_PK_KEY PRIMARY KEY(ID),
+CONSTRAINT FK_Sommerhuse_Områder FOREIGN KEY (OmrådeId) REFERENCES Områder(ID);
+
  --- add price here 
 );
 
@@ -48,8 +52,12 @@ ID INT IDENTITY(1,1),
 SengeAntal FLOAT,
 Kvalitet FLOAT,
 Pris FLOAT,
+OmrådeNavn VARCHAR(30),
+OmrådeID INT,
 
 CONSTRAINT Lejlheder_PK_KEY PRIMARY KEY (ID),
+CONSTRAINT FK_Lejlheder_Områder FOREIGN KEY (OmrådeId) REFERENCES Områder(ID);
+
 );
 
 CREATE TABLE Udlejer(
@@ -85,6 +93,9 @@ OmrådeNavn VARCHAR(30),
 CONSTRAINT Områder_PK_KEY PRIMARY KEY (ID),
 );
 
+
+
+
 CREATE TABLE CombineTable(
     LejlhederID INT,
     SommerhuseID INT,
@@ -104,6 +115,7 @@ CREATE TABLE CombineTable(
     CONSTRAINT Lejlhed_FK_KEY FOREIGN KEY (LejlhederID) REFERENCES Lejlheder(ID),
     CONSTRAINT Sommerhuse_FK_KEY FOREIGN KEY (SommerhuseID) REFERENCES Sommerhuse(ID)
 );
+
 
 
 

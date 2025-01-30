@@ -19,13 +19,13 @@ public class GetFromDatabase
     // Method to retrieve all Lejlheder from the database and display them
     public void FetchLejlhederFromDatabase()
     {
-
-
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
             connection.Open();
 
-            string query = "SELECT SengeAntal, Kvalitet, Pris FROM Lejlheder";
+            // Updated query to include OmrådeNavn using a JOIN between Lejlheder and Områder tables
+            string query = "SELECT L.ID, L.SengeAntal, L.Kvalitet, L.Pris, O.OmrådeNavn FROM Lejlheder L " +
+                           "JOIN Områder O ON L.OmrådeId = O.Id";  // Join with the Områder table to get OmrådeNavn
 
             using (SqlCommand command = new SqlCommand(query, connection))
             using (SqlDataReader reader = command.ExecuteReader())
@@ -34,10 +34,11 @@ public class GetFromDatabase
                 {
                     Lejlheder lejlhed = new Lejlheder
                     {
-                        
-                        Senge = (float)reader.GetDouble(0),         // Convert from double to float explicitly
-                        Kvalitet = (float)reader.GetDouble(1),      // Convert from double to float explicitly
-                        Price = (float)reader.GetDouble(2)
+                        Id = reader.GetInt32(0),                    // Fetch the ID (first column)
+                        Senge = (float)reader.GetDouble(1),         // Convert from double to float explicitly
+                        Kvalitet = (float)reader.GetDouble(2),      // Convert from double to float explicitly
+                        Price = (float)reader.GetDouble(3),         // Pris is a float
+                        OmrådeNavn = reader.GetString(4)            // Fetch the OmrådeNavn (area name) from the joined table
                     };
                     lejlhederList.Add(lejlhed);
                 }
@@ -47,51 +48,59 @@ public class GetFromDatabase
         Console.WriteLine("Lejlheder i databasen:");
         foreach (var lejlhed in lejlhederList)
         {
-            Console.WriteLine($"Id {lejlhed.Id}, Senge: {lejlhed.Senge}, Kvalitet: {lejlhed.Kvalitet}, Pris: {lejlhed.Price:C}");
+            Console.WriteLine($"Id {lejlhed.Id}, Senge: {lejlhed.Senge}, Kvalitet: {lejlhed.Kvalitet}, Pris: {lejlhed.Price:C}, Område: {lejlhed.OmrådeNavn}");
         }
+        Console.Write("PRES Any KEY to Continue: ");
+        Console.ReadKey();
     }
-
     public void FetchSommerhuseFromDatabase()
     {
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
             connection.Open();
 
-            string query = "SELECT SengeAntal, Kvalitet, Pris FROM Sommerhuse";
+            // Updated query to include OmrådeNavn using a JOIN between Sommerhuse and Områder tables
+            string query = "SELECT S.ID, S.SengeAntal, S.Kvalitet, S.Pris, O.OmrådeNavn FROM Sommerhuse S " +
+                           "JOIN Områder O ON S.OmrådeId = O.Id";  // Join with the Områder table to get OmrådeNavn
 
             using (SqlCommand command = new SqlCommand(query, connection))
             using (SqlDataReader reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
-
                     Sommerhuse sommerhus = new Sommerhuse
                     {
-                        Senge = (float)reader.GetDouble(0),         // Convert from double to float explicitly
-                        Kvalitet = (float)reader.GetDouble(1),      // Convert from double to float explicitly
-                        Price = (float)reader.GetDouble(2)           // Pris is a float
+                        Id = reader.GetInt32(0),                    // Fetch the ID (first column)
+                        Senge = (float)reader.GetDouble(1),         // Convert from double to float explicitly
+                        Kvalitet = (float)reader.GetDouble(2),      // Convert from double to float explicitly
+                        Price = (float)reader.GetDouble(3),         // Pris is a float
+                        OmrådeNavn = reader.GetString(4)            // Fetch the OmrådeNavn (area name) from the joined table
                     };
                     SommerhusList.Add(sommerhus);
                 }
             }
         }
 
-        // Optional: Display all Sommerhuse records
+        // Optional: Display all Sommerhuse records with OmrådeNavn
         Console.WriteLine("Sommerhuse i databasen:");
         foreach (var sommerhus in SommerhusList)
         {
-            Console.WriteLine($"Senge: {sommerhus.Senge}, Kvalitet: {sommerhus.Kvalitet}, Pris: {sommerhus.Price}");
+            Console.WriteLine($"Id {sommerhus.Id}, Senge: {sommerhus.Senge}, Kvalitet: {sommerhus.Kvalitet}, Pris: {sommerhus.Price:C}, Område: {sommerhus.OmrådeNavn}");
         }
+        
     }
-    public void FetchOmråderFromDatabase()
+    
+
+    public List<Områder> FetchAvailableAreas()
     {
+        string connectionString = "Data Source=GH\\MSSQLSERVER01;Initial Catalog=UdlejningsDatabase;Integrated Security=True;Trust Server Certificate=True";
+        List<Områder> områder = new List<Områder>();
 
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
             connection.Open();
 
-            // SQL query to fetch all records from the Områder table
-            string query = "SELECT Id, OmrådeNavn FROM Områder";
+            string query = "SELECT ID, OmrådeNavn FROM Områder";
 
             using (SqlCommand command = new SqlCommand(query, connection))
             using (SqlDataReader reader = command.ExecuteReader())
@@ -100,21 +109,26 @@ public class GetFromDatabase
                 {
                     Områder område = new Områder
                     {
-                        Id = reader.GetInt32(0),  // Assuming Id is an integer
-                        OmrådeNavn = reader.GetString(1)  // Assuming OmrådeNavn is a string
+                        Id = reader.GetInt32(0),
+                        OmrådeNavn = reader.GetString(1)
                     };
-                    områderList.Add(område);
+                    områder.Add(område);
                 }
             }
         }
 
-        // Optional: Display all Områder records
-        Console.WriteLine("Områder in the database:");
-        foreach (var område in områderList)
-        {
-            Console.WriteLine($"Id: {område.Id}, OmrådeNavn: {område.OmrådeNavn}");
-        }
+        return områder;
     }
+    /*
+    // Optional: Display all Områder records
+    Console.WriteLine("Områder in the database:");
+    foreach (var område in områderList)
+    {
+        Console.WriteLine($"Id: {område.Id}, OmrådeNavn: {område.OmrådeNavn}");
+    }
+    */
+
+
 
     public BrugerLejer FetchUserFromDatabase(string Fornavn)
     {
@@ -152,14 +166,22 @@ public class GetFromDatabase
 
 
     }
-    public List<Booking> GetPendingBookings()
+    public void FetchPendingBookings()
     {
-        List<Booking> pendingBookings = new List<Booking>();
+        string connectionString = "Data Source=GH\\MSSQLSERVER01;Initial Catalog=UdlejningsDatabase;Integrated Security=True;Trust Server Certificate=True";
 
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
             connection.Open();
-            string query = "SELECT * FROM Bookings WHERE Status = 'Pending'";
+
+            // Modified query to include OmrådeId for both Sommerhus and Lejlighed
+            string query = @"
+            SELECT B.Id, B.BrugerId, B.SommerhusId, B.LejlighedId, B.StartDate, B.EndDate, B.Price, B.Status, 
+                   S.OmrådeId AS SommerhusOmrådeId, L.OmrådeId AS LejlighedOmrådeId
+            FROM Bookings B
+            LEFT JOIN Sommerhuse S ON B.SommerhusId = S.Id
+            LEFT JOIN Lejlheder L ON B.LejlighedId = L.Id
+            WHERE B.Status IS NULL";  // Only bookings that are pending (null status)
 
             using (SqlCommand command = new SqlCommand(query, connection))
             {
@@ -167,58 +189,66 @@ public class GetFromDatabase
                 {
                     while (reader.Read())
                     {
-                        var booking = new Booking
-                        {
-                            Id = Convert.ToInt32(reader["Id"]),
-                            UserId = Convert.ToInt32(reader["UserId"]),
-                            SommerhusId = reader["SommerhusId"] as int?,
-                            LejlighedId = reader["LejlighedId"] as int?,
-                            StartDate = Convert.ToDateTime(reader["StartDate"]),
-                            EndDate = Convert.ToDateTime(reader["EndDate"]),
-                            Price = Convert.ToDecimal(reader["Price"]),
-                            Status = reader["Status"].ToString()
-                        };
-                        pendingBookings.Add(booking);
+                        int bookingId = reader.GetInt32(0);
+                        int brugerId = reader.GetInt32(1);
+                        int? sommerhusId = reader.IsDBNull(2) ? (int?)null : reader.GetInt32(2); // Handle null SommerhusId
+                        int? lejlighedId = reader.IsDBNull(3) ? (int?)null : reader.GetInt32(3); // Handle null LejlighedId
+                        DateTime startDate = reader.GetDateTime(4);
+                        DateTime endDate = reader.GetDateTime(5);
+                        decimal price = reader.GetDecimal(6);
+                        string status = reader.IsDBNull(7) ? "Pending" : reader.GetString(7);  // Handle null status
+
+                        // Determine the OmrådeId based on whether it's Sommerhus or Lejlighed
+                        int? områdeId = sommerhusId.HasValue ? reader.GetInt32(8) : (lejlighedId.HasValue ? reader.GetInt32(9) : (int?)null);
+
+                        Console.WriteLine($"Booking ID: {bookingId}, Bruger ID: {brugerId}, Start Date: {startDate.ToShortDateString()}, " +
+                                          $"End Date: {endDate.ToShortDateString()}, Price: {price:C}, Status: {status}, " +
+                                          $"OmrådeId: {områdeId}");
+                    }
+                }
+            }
+        }
+    }
+
+    public string FetchOmrådeNameById(int områdeId)
+    {
+        string connectionString = "Data Source=GH\\MSSQLSERVER01;Initial Catalog=UdlejningsDatabase;Integrated Security=True;Trust Server Certificate=True";
+        string områdeNavn = string.Empty;
+
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            connection.Open();
+
+            string query = "SELECT OmrådeNavn FROM Områder WHERE Id = @OmrådeId";
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@OmrådeId", områdeId);
+                using (SqlDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        områdeNavn = reader.GetString(0);
                     }
                 }
             }
         }
 
-        return pendingBookings;
-        
+        return områdeNavn;
+
     }
 
-
-
-
-    public void ShowPendingBookings(GetFromDatabase bookingSystem)
-    {
-        var pendingBookings = bookingSystem.GetPendingBookings();
-
-        if (pendingBookings.Count == 0)
-        {
-            Console.WriteLine("No pending bookings.");
-            return;
-        }
-
-        Console.WriteLine("Pending Bookings:");
-        foreach (var booking in pendingBookings)
-        {
-            Console.WriteLine($"ID: {booking.Id}, UserID: {booking.UserId}, Start Date: {booking.StartDate.ToShortDateString()}, End Date: {booking.EndDate.ToShortDateString()}, Price: {booking.Price}, Status: {booking.Status}");
-        }
-        Console.WriteLine("Pres KEY to Continue");
-        Console.ReadKey();
-    }
 
     // Confirm a Booking
     public void ConfirmBooking(InsertToDatabase bookingSystem)
     {
         GetFromDatabase getFromDatabase = new GetFromDatabase();
+
+        FetchPendingBookings();
+
         Console.Write("Enter the Booking ID to confirm: ");
         int bookingId = Convert.ToInt32(Console.ReadLine());
 
-        GetPendingBookings();
-        ShowPendingBookings(getFromDatabase);
+
 
         // Confirm the booking
         bookingSystem.ConfirmBooking(bookingId);
@@ -227,3 +257,4 @@ public class GetFromDatabase
         Console.ReadKey();
     }
 }
+

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Identity.Client;
+using Udlejnings.Backend.SqlCrud.GetOperation;
 using Udlejnings.Backend.SqlCrud.InsertOperations;
 using Udlejnings.Models;
 
@@ -31,30 +33,65 @@ public class Oprettelse_Af_Hus_Leligheder
 
         InsertToDatabase insertToDatabase = new InsertToDatabase();
         Prisseasoner prisseasoner = new Prisseasoner();
-        // if error set start value on values again 
+        GetFromDatabase getFromDatabase = new GetFromDatabase();
 
-        Console.Write("Senge Antal: ");
-        string InputSengeAntal = Console.ReadLine();
+        // Fetch the available areas from the database
+        List<Områder> områder = getFromDatabase.FetchAvailableAreas();
 
-        Console.Write("Kvalitet: ");
-        string InputKvalitet = Console.ReadLine();
 
-        
+        string InputSengeAntal;
 
-        while (KeepRuning)
+        string InputKvalitet;
+
+        bool KeepRunning = true;
+        // Validate inputs for Senge and Kvalitet
+        while (KeepRunning)
         {
-            if(float.TryParse(InputSengeAntal, out OKInputSengeAntal)){
-                if(OKInputSengeAntal > 0 && OKInputSengeAntal <= 10){ Console.WriteLine("Inputet er ok"); }
-                else{ Console.WriteLine("Inputet er invalid ( 0 - 10 SENGE)"); }
+            // Input for SengeAntal
+            Console.Write("Indtast antal senge (0 - 10): ");
+            InputSengeAntal = Console.ReadLine();
+
+            if (float.TryParse(InputSengeAntal, out OKInputSengeAntal))
+            {
+                if (OKInputSengeAntal > 0 && OKInputSengeAntal <= 10)
+                {
+                    Console.WriteLine("Inputet for senge er ok.");
+                }
+                else
+                {
+                    Console.WriteLine("Inputet er invalid (0 - 10 SENGE). Prøv igen.");
+                    continue; // Skip the rest and ask again for SengeAntal
+                }
             }
+            else
+            {
+                Console.WriteLine("Inputet er invalid (0 - 10 SENGE). Prøv igen.");
+                continue; // Skip the rest and ask again for SengeAntal
+            }
+
+            // Input for Kvalitet
+            Console.Write("Indtast kvalitet (0 - 10): ");
+            InputKvalitet = Console.ReadLine();
 
             if (float.TryParse(InputKvalitet, out OkInputKvalitet))
             {
-                if (OkInputKvalitet > 0 && OkInputKvalitet <= 10) { Console.WriteLine("Inputet er ok"); KeepRuning = false; }
+                if (OkInputKvalitet > 0 && OkInputKvalitet <= 10)
+                {
+                    Console.WriteLine("Inputet for kvalitet er ok.");
+                    KeepRunning = false; // Stop the loop if both inputs are valid
+                }
+                else
+                {
+                    Console.WriteLine("Inputet er invalid (0 - 10 KVALITET). Prøv igen.");
+                }
             }
-            else { Console.WriteLine("Inputet er invalid (0 - 10 KVALITET)"); }
+            else
+            {
+                Console.WriteLine("Inputet er invalid (0 - 10 KVALITET). Prøv igen.");
+            }
         }
-        // sender lav logik så bestemt uger har super pris lige meget hvad
+
+        // Price selection logic
         while (!PrisKlasseInputValid)
         {
             Console.Write("Vælg pris klassen : Super, Hoj, Mellem, Lav: ");
@@ -65,21 +102,69 @@ public class Oprettelse_Af_Hus_Leligheder
                 price = prisseasoner.PriceMapping[VælgPrisKlasse];
                 PrisKlasseInputValid = true;
             }
-            else { Console.WriteLine("Invalid input Super, Hoj, Mellem, Lav"); }
+            else
+            {
+                Console.WriteLine("Invalid input Super, Hoj, Mellem, Lav");
+            }
         }
+
         Console.WriteLine($"Du har valgt pris klasse: {VælgPrisKlasse}, og prisen er: {price} kr.");
 
-        Sommerhuse sommerhuse = new Sommerhuse(OKInputSengeAntal, OkInputKvalitet, price);
-        
-        insertToDatabase.InsertSommerhusToDatabase(sommerhuse);
+        // Display available areas to the user
+        Console.WriteLine("Vælg et område fra følgende liste:");
+        for (int i = 0; i < områder.Count; i++)
+        {
+            Console.WriteLine($"{i + 1}: {områder[i].OmrådeNavn}");
+        }
 
-        Console.Write("PRES any KEY to Continue: ");
-        Console.ReadKey();
-        // penge season skal komme ind her og blive support om instance klassen
-        // mangler at tilføje så penge option er en mulighed.....
+        Console.Write("Indtast nummeret for det område, som Sommerhuset skal oprettes i: ");
+        int selectedAreaIndex = -1;
 
+        while (selectedAreaIndex < 0 || selectedAreaIndex >= områder.Count)
+        {
+            Console.WriteLine("Vælg et område fra følgende liste:");
+            for (int i = 0; i < områder.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}: {områder[i].OmrådeNavn}");
+            }
+
+            Console.Write("Indtast nummeret for det område, som Sommerhuset skal oprettes i: ");
+
+            // Try to parse the user input
+            try
+            {
+                selectedAreaIndex = Convert.ToInt32(Console.ReadLine()) - 1;
+
+                // Check if the input is within a valid range
+                if (selectedAreaIndex >= 0 && selectedAreaIndex < områder.Count)
+                {
+                    Områder selectedArea = områder[selectedAreaIndex];
+                    Console.WriteLine($"Du har valgt området: {selectedArea.OmrådeNavn}");
+
+                    // Create a new Sommerhus with the selected area
+                    Sommerhuse sommerhuse = new Sommerhuse(OKInputSengeAntal, OkInputKvalitet, price, selectedArea.Id, selectedArea.OmrådeNavn);
+
+                    // Insert the Sommerhus to the database
+                    insertToDatabase.InsertSommerhusToDatabase(sommerhuse);
+
+                    Console.Write("PRES any KEY to Continue: ");
+                    Console.ReadKey();
+                }
+                else
+                {
+                    // If the selection is not valid, print an error message
+                    Console.WriteLine("Invalid område selection. Please select a valid number.");
+                }
+            }
+            catch (FormatException)
+            {
+                // If the input is not a valid number, prompt the user to try again
+                Console.WriteLine("Inputet er ugyldigt. Prøv venligst at indtaste et nummer.");
+            }
+
+        }
     }
-    public void Oprettelse_Af_Lelighed()
+    public void Oprettelse_Af_Lejlighed()
     {
         KeepRuning = true;
         OkInputKvalitet = 0;
@@ -89,33 +174,60 @@ public class Oprettelse_Af_Hus_Leligheder
         VælgPrisKlasse = "";
 
         InsertToDatabase insertToDatabase = new InsertToDatabase();
-        // if error set start value on values again 
+        GetFromDatabase getFromDatabase = new GetFromDatabase();
 
         Prisseasoner prisseasoner = new Prisseasoner();
+        List<Områder> områder = getFromDatabase.FetchAvailableAreas();
 
-        Console.Write("Senge Antal: ");
-        string InputSengeAntal = Console.ReadLine();
-
-        Console.Write("Kvalitet: ");
-        string InputKvalitet = Console.ReadLine();
-
-
-
+        // Validate Senge Antal input
         while (KeepRuning)
         {
+            Console.Write("Senge Antal: ");
+            string InputSengeAntal = Console.ReadLine();
+
             if (float.TryParse(InputSengeAntal, out OKInputSengeAntal))
             {
-                if (OKInputSengeAntal > 0 && OKInputSengeAntal <= 10) { Console.WriteLine("Inputet er ok"); }
-                else { Console.WriteLine("Inputet er invalid ( 0 - 10 SENGE)"); }
+                if (OKInputSengeAntal > 0 && OKInputSengeAntal <= 10)
+                {
+                    Console.WriteLine("Inputet for senge er ok.");
+                    break; // Exit the loop when input is valid
+                }
+                else
+                {
+                    Console.WriteLine("Inputet er invalid (0 - 10 SENGE). Prøv igen.");
+                }
             }
+            else
+            {
+                Console.WriteLine("Inputet er invalid. Prøv igen.");
+            }
+        }
+
+        // Validate Kvalitet input
+        while (KeepRuning)
+        {
+            Console.Write("Kvalitet: ");
+            string InputKvalitet = Console.ReadLine();
 
             if (float.TryParse(InputKvalitet, out OkInputKvalitet))
             {
-                if (OkInputKvalitet > 0 && OkInputKvalitet <= 10) { Console.WriteLine("Inputet er ok"); KeepRuning = false; }
+                if (OkInputKvalitet > 0 && OkInputKvalitet <= 10)
+                {
+                    Console.WriteLine("Inputet for kvalitet er ok.");
+                    break; // Exit the loop when input is valid
+                }
+                else
+                {
+                    Console.WriteLine("Inputet er invalid (0 - 10 KVALITET). Prøv igen.");
+                }
             }
-            else { Console.WriteLine("Inputet er invalid (0 - 10 KVALITET)"); }
+            else
+            {
+                Console.WriteLine("Inputet er invalid. Prøv igen.");
+            }
         }
-        // sender lav logik så bestemt uger har super pris lige meget hvad
+
+        // Validate Price Class input
         while (!PrisKlasseInputValid)
         {
             Console.Write("Vælg pris klassen : Super, Hoj, Mellem, Lav: ");
@@ -125,17 +237,58 @@ public class Oprettelse_Af_Hus_Leligheder
             {
                 price = prisseasoner.PriceMapping[VælgPrisKlasse];
                 PrisKlasseInputValid = true;
+                Console.WriteLine($"Pris valgt: {price}");
             }
-            else { Console.WriteLine("Invalid input Super, Hoj, Mellem, Lav"); }
+            else
+            {
+                Console.WriteLine("Invalid input. Vælg mellem: Super, Hoj, Mellem, Lav.");
+            }
         }
-        Console.WriteLine($"Du har valgt pris klasse: {VælgPrisKlasse}, og prisen er: {price} kr.");
 
-        Lejlheder lejlhed = new Lejlheder(OKInputSengeAntal, OkInputKvalitet, price);
+        // Validate area selection input
+        int selectedAreaIndex = -1;
+        while (selectedAreaIndex < 0 || selectedAreaIndex >= områder.Count)
+        {
+            Console.WriteLine("Vælg et område fra følgende liste:");
+            for (int i = 0; i < områder.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}: {områder[i].OmrådeNavn}");
+            }
 
-        insertToDatabase.InsertLejlhedToDatabase(lejlhed);
+            Console.Write("Indtast nummeret for det område, som Lejligheden skal oprettes i: ");
+            string input = Console.ReadLine();
 
-        Console.Write("PRES any KEY to Continue: ");
-        Console.ReadKey();
+            try
+            {
+                selectedAreaIndex = Convert.ToInt32(input) - 1;
+
+                // Check if the selection is valid
+                if (selectedAreaIndex >= 0 && selectedAreaIndex < områder.Count)
+                {
+                    Områder selectedArea = områder[selectedAreaIndex];
+                    Console.WriteLine($"Du har valgt området: {selectedArea.OmrådeNavn}");
+
+                    // Create the Lejlhed with the selected area
+                    Lejlheder lejlheder = new Lejlheder(OKInputSengeAntal, OkInputKvalitet, price, selectedArea.Id, selectedArea.OmrådeNavn);
+
+                    // Insert the Lejlhed to the database
+                    insertToDatabase.InsertLejlhedToDatabase(lejlheder);
+
+                    Console.Write("PRES any KEY to Continue: ");
+                    Console.ReadKey();
+                    break; // Exit loop after successful insertion
+                }
+                else
+                {
+                    Console.WriteLine("Invalid område selection. Please select a valid area.");
+                }
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine("Inputet er ugyldigt. Prøv venligst at indtaste et nummer.");
+            }
+        }
 
     }
+
 }
