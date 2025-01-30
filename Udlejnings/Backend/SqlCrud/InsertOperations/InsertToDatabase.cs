@@ -168,7 +168,7 @@ public class InsertToDatabase
 
             // Construct SQL query based on whether the user is booking a Sommerhus or a Lejlighed
             string query = string.Empty;
-  
+
 
             if (sommerhusId.HasValue)
             {
@@ -211,6 +211,7 @@ public class InsertToDatabase
         }
 
     }
+    /*
     public void ConfirmBooking(int bookingId)
     {
         string connectionString = "Data Source=GH\\MSSQLSERVER01;Initial Catalog=UdlejningsDatabase;Integrated Security=True;Trust Server Certificate=True";
@@ -237,6 +238,36 @@ public class InsertToDatabase
                 }
             }
         }
+        */
+
+    public void ConfirmBooking(int bookingId)
+    {
+        string connectionString = "Data Source=GH\\MSSQLSERVER01;Initial Catalog=UdlejningsDatabase;Integrated Security=True;Trust Server Certificate=True";
+
+        using (SqlConnection connection = new SqlConnection(connectionString))
+        {
+            connection.Open();
+
+            // Updated query to handle both NULL and 'Pending' status
+            string query = "UPDATE Bookings SET Status = 'Confirmed' WHERE Id = @BookingId AND (Status IS NULL OR Status = 'Pending')";
+
+            using (SqlCommand command = new SqlCommand(query, connection))
+            {
+                command.Parameters.AddWithValue("@BookingId", bookingId);
+                int rowsAffected = command.ExecuteNonQuery();
+
+                if (rowsAffected > 0)
+                {
+                    Console.WriteLine("Booking confirmed successfully.");
+                    Console.WriteLine("Press ANY key to continue: ");
+                    Console.ReadKey();
+                }
+                else
+                {
+                    Console.WriteLine("Booking could not be confirmed (it may have already been confirmed or not exist).");
+                }
+            }
+        }
     }
-    
 }
+    

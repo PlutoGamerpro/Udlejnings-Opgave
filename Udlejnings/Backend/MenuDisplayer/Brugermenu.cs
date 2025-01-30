@@ -46,7 +46,7 @@ namespace Udlejnings.Backend.MenuDisplayer
                 {
                     case "1": brugerOprettelse.CreateUser(); Console.WriteLine("OpretBruger"); break;
                     case "2": brugerlogin.CheckLoginInfo(); Console.WriteLine("Login ind"); break;
-                    case "3":  getFromDatabase.ShowPendingBookings(getFromDatabase); Console.WriteLine("Se Ledlige lejlheder / sommerhuse"); break;
+                    case "3":  getFromDatabase.FetchPendingBookings(); Console.WriteLine("Se Ledlige lejlheder / sommerhuse"); break;
                     case "4": Console.WriteLine("Afslutet Program"); Environment.Exit(0); break;
 
                     default: Console.WriteLine("Vælg en af overstående muligheder"); break;

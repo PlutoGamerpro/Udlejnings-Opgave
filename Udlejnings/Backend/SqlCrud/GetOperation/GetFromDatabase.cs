@@ -19,13 +19,12 @@ public class GetFromDatabase
     // Method to retrieve all Lejlheder from the database and display them
     public void FetchLejlhederFromDatabase()
     {
-
-
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
             connection.Open();
 
-            string query = "SELECT SengeAntal, Kvalitet, Pris FROM Lejlheder";
+            // Fetch ID, SengeAntal, Kvalitet, and Pris from Lejlheder table
+            string query = "SELECT ID, SengeAntal, Kvalitet, Pris FROM Lejlheder";
 
             using (SqlCommand command = new SqlCommand(query, connection))
             using (SqlDataReader reader = command.ExecuteReader())
@@ -34,10 +33,10 @@ public class GetFromDatabase
                 {
                     Lejlheder lejlhed = new Lejlheder
                     {
-                        
-                        Senge = (float)reader.GetDouble(0),         // Convert from double to float explicitly
-                        Kvalitet = (float)reader.GetDouble(1),      // Convert from double to float explicitly
-                        Price = (float)reader.GetDouble(2)
+                        Id = reader.GetInt32(0),                    // Fetch the ID (first column)
+                        Senge = (float)reader.GetDouble(1),         // Convert from double to float explicitly
+                        Kvalitet = (float)reader.GetDouble(2),      // Convert from double to float explicitly
+                        Price = (float)reader.GetDouble(3)          // Pris is a float
                     };
                     lejlhederList.Add(lejlhed);
                 }
@@ -50,26 +49,26 @@ public class GetFromDatabase
             Console.WriteLine($"Id {lejlhed.Id}, Senge: {lejlhed.Senge}, Kvalitet: {lejlhed.Kvalitet}, Pris: {lejlhed.Price:C}");
         }
     }
-
     public void FetchSommerhuseFromDatabase()
     {
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
             connection.Open();
 
-            string query = "SELECT SengeAntal, Kvalitet, Pris FROM Sommerhuse";
+            // Fetch ID, SengeAntal, Kvalitet, and Pris from Sommerhuse table
+            string query = "SELECT ID, SengeAntal, Kvalitet, Pris FROM Sommerhuse";
 
             using (SqlCommand command = new SqlCommand(query, connection))
             using (SqlDataReader reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
-
                     Sommerhuse sommerhus = new Sommerhuse
                     {
-                        Senge = (float)reader.GetDouble(0),         // Convert from double to float explicitly
-                        Kvalitet = (float)reader.GetDouble(1),      // Convert from double to float explicitly
-                        Price = (float)reader.GetDouble(2)           // Pris is a float
+                        Id = reader.GetInt32(0),                    // Fetch the ID (first column)
+                        Senge = (float)reader.GetDouble(1),         // Convert from double to float explicitly
+                        Kvalitet = (float)reader.GetDouble(2),      // Convert from double to float explicitly
+                        Price = (float)reader.GetDouble(3)          // Pris is a float
                     };
                     SommerhusList.Add(sommerhus);
                 }
@@ -80,7 +79,7 @@ public class GetFromDatabase
         Console.WriteLine("Sommerhuse i databasen:");
         foreach (var sommerhus in SommerhusList)
         {
-            Console.WriteLine($"Senge: {sommerhus.Senge}, Kvalitet: {sommerhus.Kvalitet}, Pris: {sommerhus.Price}");
+            Console.WriteLine($"Id {sommerhus.Id}, Senge: {sommerhus.Senge}, Kvalitet: {sommerhus.Kvalitet}, Pris: {sommerhus.Price:C}");
         }
     }
     public void FetchOmråderFromDatabase()
@@ -152,14 +151,18 @@ public class GetFromDatabase
 
 
     }
-    public List<Booking> GetPendingBookings()
+    public void FetchPendingBookings()
     {
-        List<Booking> pendingBookings = new List<Booking>();
+        string connectionString = "Data Source=GH\\MSSQLSERVER01;Initial Catalog=UdlejningsDatabase;Integrated Security=True;Trust Server Certificate=True";
 
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
             connection.Open();
-            string query = "SELECT * FROM Bookings WHERE Status = 'Pending'";
+
+            // Modified query to fetch all bookings with a NULL status (still pending)
+            string query = "SELECT Id, BrugerId, SommerhusId, LejlighedId, StartDate, EndDate, Price, Status " +
+                           "FROM Bookings " +
+                           "WHERE Status IS NULL";  // Only bookings that are pending (null status)
 
             using (SqlCommand command = new SqlCommand(query, connection))
             {
@@ -167,58 +170,31 @@ public class GetFromDatabase
                 {
                     while (reader.Read())
                     {
-                        var booking = new Booking
-                        {
-                            Id = Convert.ToInt32(reader["Id"]),
-                            UserId = Convert.ToInt32(reader["UserId"]),
-                            SommerhusId = reader["SommerhusId"] as int?,
-                            LejlighedId = reader["LejlighedId"] as int?,
-                            StartDate = Convert.ToDateTime(reader["StartDate"]),
-                            EndDate = Convert.ToDateTime(reader["EndDate"]),
-                            Price = Convert.ToDecimal(reader["Price"]),
-                            Status = reader["Status"].ToString()
-                        };
-                        pendingBookings.Add(booking);
+                        int bookingId = reader.GetInt32(0);
+                        DateTime startDate = reader.GetDateTime(4);
+                        DateTime endDate = reader.GetDateTime(5);
+                        decimal price = reader.GetDecimal(6);
+                        string status = reader.IsDBNull(7) ? "Pending" : reader.GetString(7);  // Handle null status
+
+                        Console.WriteLine($"Booking ID: {bookingId}, Start Date: {startDate.ToShortDateString()}, End Date: {endDate.ToShortDateString()}, Price: {price:C}, Status: {status}");
                     }
                 }
             }
         }
-
-        return pendingBookings;
-        
     }
 
-
-
-
-    public void ShowPendingBookings(GetFromDatabase bookingSystem)
-    {
-        var pendingBookings = bookingSystem.GetPendingBookings();
-
-        if (pendingBookings.Count == 0)
-        {
-            Console.WriteLine("No pending bookings.");
-            return;
-        }
-
-        Console.WriteLine("Pending Bookings:");
-        foreach (var booking in pendingBookings)
-        {
-            Console.WriteLine($"ID: {booking.Id}, UserID: {booking.UserId}, Start Date: {booking.StartDate.ToShortDateString()}, End Date: {booking.EndDate.ToShortDateString()}, Price: {booking.Price}, Status: {booking.Status}");
-        }
-        Console.WriteLine("Pres KEY to Continue");
-        Console.ReadKey();
-    }
-
+ 
     // Confirm a Booking
     public void ConfirmBooking(InsertToDatabase bookingSystem)
     {
         GetFromDatabase getFromDatabase = new GetFromDatabase();
+
+        FetchPendingBookings();
+
         Console.Write("Enter the Booking ID to confirm: ");
         int bookingId = Convert.ToInt32(Console.ReadLine());
 
-        GetPendingBookings();
-        ShowPendingBookings(getFromDatabase);
+        
 
         // Confirm the booking
         bookingSystem.ConfirmBooking(bookingId);

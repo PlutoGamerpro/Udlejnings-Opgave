@@ -107,6 +107,9 @@ CREATE TABLE CombineTable(
 
 
 
+
+
+
 INSERT INTO Prisseasoner (Prisseasoner)
 VALUES
 ('super'),
