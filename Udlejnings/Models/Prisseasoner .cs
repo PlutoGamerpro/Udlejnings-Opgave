@@ -9,10 +9,10 @@ public class Prisseasoner
 {
     public Dictionary <string, float> PriceMapping = new Dictionary<string, float>
     {
-        {"Super",6000},
-        {"Høj", 5000},
-        {"Mellem", 4000},
-        {"Lav", 3000},
+        {"super",6000},
+        {"hoj", 5000},
+        {"mellem", 4000},
+        {"lav", 3000},
 
     };
 

@@ -72,11 +72,17 @@ namespace Udlejnings.Backend.BrugerOprettelse
             {
                 GetFromDatabase test = new GetFromDatabase();
                 brugermenu.AdminOperationManager(test);
+                
             }
             else
             {
-                brugermenu.BrugerOperationManager();
-                    
+                Console.WriteLine("Login igen for at få adgang til funktioner: ");
+                Console.WriteLine("PRES KEY TO CONTINUE: ");
+                Console.ReadKey();
+                brugermenu.OperationManager();
+
+                
+
             }
 
         }

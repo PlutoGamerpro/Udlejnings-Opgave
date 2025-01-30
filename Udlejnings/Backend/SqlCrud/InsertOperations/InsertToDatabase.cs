@@ -168,14 +168,15 @@ public class InsertToDatabase
 
             // Construct SQL query based on whether the user is booking a Sommerhus or a Lejlighed
             string query = string.Empty;
+  
 
             if (sommerhusId.HasValue)
             {
-                query = "INSERT INTO Bookings (UserId, SommerhusId, StartDate, EndDate, Price) VALUES (@UserId, @SommerhusId, @StartDate, @EndDate, @Price)";
+                query = "INSERT INTO Bookings (BrugerId, SommerhusId, StartDate, EndDate, Price) VALUES (@BrugerId, @SommerhusId, @StartDate, @EndDate, @Price)";
             }
             else if (lejlighedId.HasValue)
             {
-                query = "INSERT INTO Bookings (UserId, LejlighedId, StartDate, EndDate, Price) VALUES (@UserId, @LejlighedId, @StartDate, @EndDate, @Price)";
+                query = "INSERT INTO Bookings (BrugerId, LejlighedId, StartDate, EndDate, Price) VALUES (@BrugerId, @LejlighedId, @StartDate, @EndDate, @Price)";
             }
 
             // Check if a valid query was built
@@ -188,7 +189,7 @@ public class InsertToDatabase
             // Execute the query to insert the booking
             using (SqlCommand command = new SqlCommand(query, connection))
             {
-                command.Parameters.AddWithValue("@UserId", userId);
+                command.Parameters.AddWithValue("@BrugerId", userId);
                 command.Parameters.AddWithValue("@StartDate", startDate);
                 command.Parameters.AddWithValue("@EndDate", endDate);
                 command.Parameters.AddWithValue("@Price", price);
@@ -227,6 +228,8 @@ public class InsertToDatabase
                 if (rowsAffected > 0)
                 {
                     Console.WriteLine("Booking confirmed successfully.");
+                    Console.WriteLine("Pres ANY Key to Continue: ");
+                    Console.ReadKey();
                 }
                 else
                 {
